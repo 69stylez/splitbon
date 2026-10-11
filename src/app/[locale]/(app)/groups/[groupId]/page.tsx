@@ -292,6 +292,17 @@ export default function GroupDetailPage({ params }: { params: Promise<{ groupId:
             variant="outline"
             size="sm"
             nativeButton={false}
+            render={<Link href={`/groups/${groupId}/trash`} />}
+            title={t('detail.trash')}
+            aria-label={t('detail.trash')}
+            data-testid="trash-btn"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            nativeButton={false}
             render={<Link href={`/groups/${groupId}/settings`} />}
           >
             <Settings className="h-4 w-4" />
