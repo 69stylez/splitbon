@@ -275,6 +275,17 @@
     "doneLabel": "Listos:",
     "waitingLabel": "Aún eligiendo:",
     "openBadge": "pendiente",
-    "finishedToast": "¡Gracias! Tu selección está guardada."
+    "finishedToast": "¡Gracias! Tu selección está guardada.",
+    "openUnits": "quedan {count}",
+    "lessUnits": "Uno menos",
+    "moreUnits": "Uno más",
+    "todoTitle": "Solicitudes abiertas",
+    "todoAsk": "{name} te pide que elijas tus artículos de «{title}»",
+    "todoAskMine": "Elegir artículos de «{title}»",
+    "todoOpen": "{count, plural, one {# artículo pendiente} other {# artículos pendientes}}",
+    "todoDoneMine": "Ya terminaste",
+    "todoPick": "Elegir ahora",
+    "todoView": "Ver",
+    "todoAllPicked": "Todo elegido, listo para registrar"
   }
 }

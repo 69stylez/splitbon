@@ -275,6 +275,17 @@
     "doneLabel": "Klara:",
     "waitingLabel": "Väljer fortfarande:",
     "openBadge": "öppen",
-    "finishedToast": "Tack! Dina val är sparade."
+    "finishedToast": "Tack! Dina val är sparade.",
+    "openUnits": "{count} kvar",
+    "lessUnits": "En mindre",
+    "moreUnits": "En till",
+    "todoTitle": "Öppna förfrågningar",
+    "todoAsk": "{name} ber dig välja dina poster från ”{title}”",
+    "todoAskMine": "Välj poster från ”{title}”",
+    "todoOpen": "{count} poster kvar",
+    "todoDoneMine": "Du är klar",
+    "todoPick": "Välj nu",
+    "todoView": "Visa",
+    "todoAllPicked": "Allt valt, redo att bokföras"
   }
 }
