@@ -6,6 +6,60 @@ import { getExchangeRate, convertCents } from '../../lib/exchange-rates';
 import { MAX_MONEY_CENTS } from '@/lib/money';
 
 export const settlementsRouter = createTRPCRouter({
+  // This corrects a recorded payment, not an external transfer or refund.
+  cancel: groupMemberProcedure
+    .input(z.object({ groupId: z.string(), settlementId: z.string(), reason: z.string().trim().max(500).optional() }))
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db.$transaction(async (tx) => {
+        const settlement = await tx.settlement.findFirst({
+          where: { id: input.settlementId, groupId: input.groupId },
+        });
+        if (!settlement) throw new TRPCError({ code: 'NOT_FOUND', message: 'Settlement not found' });
+
+        const creator = await tx.activityLog.findFirst({
+          where: { groupId: input.groupId, entityId: settlement.id, type: 'SETTLEMENT_CREATED', userId: ctx.user.id },
+          select: { id: true },
+        });
+        if (
+          ctx.membership.role === 'MEMBER' &&
+          settlement.fromId !== ctx.user.id &&
+          settlement.toId !== ctx.user.id &&
+          !creator
+        ) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Only payment parties, its creator or a group admin can cancel',
+          });
+        }
+
+        // Compare-and-set: concurrent/retried cancellations produce exactly one audit entry.
+        const canceledAt = new Date();
+        const updated = await tx.settlement.updateMany({
+          where: { id: settlement.id, groupId: input.groupId, canceledAt: null },
+          data: { canceledAt },
+        });
+        if (updated.count === 0) return { id: settlement.id, canceled: true };
+
+        await tx.activityLog.create({
+          data: {
+            groupId: input.groupId,
+            userId: ctx.user.id,
+            type: 'SETTLEMENT_CANCELED',
+            entityId: settlement.id,
+            metadata: {
+              fromId: settlement.fromId,
+              toId: settlement.toId,
+              amount: settlement.amount,
+              currency: settlement.currency,
+              baseCurrencyAmount: settlement.baseCurrencyAmount,
+              reason: input.reason ?? '',
+            },
+          },
+        });
+        return { id: settlement.id, canceled: true };
+      });
+    }),
+
   list: groupMemberProcedure
     .input(
       z.object({

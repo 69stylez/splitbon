@@ -10,6 +10,7 @@ import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { CancelSettlementDialog } from '@/components/groups/cancel-settlement-dialog';
 import { MemberAvatar, PersonFilter, dayLabel, memberName, type RowMember } from '@/components/expenses/expense-row';
 
 type Meta = {
@@ -17,6 +18,8 @@ type Meta = {
   amount?: number;
   currency?: string;
   toId?: string;
+  fromId?: string;
+  reason?: string;
   placeholderName?: string;
   itemName?: string;
   changes?: unknown;
@@ -44,6 +47,7 @@ function kindsOf(type: string, meta: { changes?: unknown }): Kind[] {
     case 'EXPENSE_DELETED':
       return ['deleted'];
     case 'SETTLEMENT_CREATED':
+    case 'SETTLEMENT_CANCELED':
       return ['payment'];
     case 'RECEIPT_ITEMS_CHANGED':
       return ['receipt'];
@@ -202,6 +206,16 @@ export default function GroupHistoryPage({ params }: { params: Promise<{ groupId
             amount: meta.amount !== undefined ? money(meta.amount, meta.currency) : '',
           }),
         };
+      case 'SETTLEMENT_CANCELED':
+        return {
+          text: t('history.settlementCanceled', {
+            name: who,
+            from: first(meta.fromId),
+            to: first(meta.toId),
+            amount: meta.amount !== undefined ? money(meta.amount, meta.currency) : '',
+          }),
+          detail: meta.reason ?? null,
+        };
       case 'RECEIPT_ITEMS_CHANGED':
         return { text: t('history.receiptItems', { name: who }), detail: meta.itemName ?? null };
       case 'MEMBER_JOINED':
@@ -284,6 +298,12 @@ export default function GroupHistoryPage({ params }: { params: Promise<{ groupId
                     <div className="min-w-0 flex-1">
                       <p className="text-sm">{text}</p>
                       {detail && <p className="mt-0.5 text-xs text-muted-foreground">{detail}</p>}
+                      {e.settlement?.canceledAt && (
+                        <p className="mt-0.5 text-xs text-muted-foreground">{t('settle.canceled')}</p>
+                      )}
+                      {e.settlement?.canCancel && (
+                        <CancelSettlementDialog groupId={groupId} settlementId={e.settlement.id} />
+                      )}
                       {e.kinds.length > 1 && (
                         <p className="mt-0.5 flex gap-2 text-xs text-muted-foreground">
                           {e.kinds.map((k) => (

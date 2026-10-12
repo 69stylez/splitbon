@@ -28,6 +28,7 @@ export type Settlement = {
   fromId: string;
   toId: string;
   amount: number;
+  canceledAt?: Date | string | null;
   /** Amount in group currency (cents). When set, used instead of amount for balance math. */
   baseCurrencyAmount?: number | null;
 };
@@ -124,6 +125,7 @@ export function computeBalances(expenses: Expense[], settlements: Settlement[]):
   }
 
   for (const settlement of settlements) {
+    if (settlement.canceledAt != null) continue;
     const from = getOrCreate(settlement.fromId);
     const to = getOrCreate(settlement.toId);
     const effectiveAmount = settlement.baseCurrencyAmount ?? settlement.amount;

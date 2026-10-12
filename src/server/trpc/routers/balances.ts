@@ -16,7 +16,7 @@ export const balancesRouter = createTRPCRouter({
       }),
       ctx.db.settlement.findMany({
         where: { groupId: input.groupId },
-        select: { fromId: true, toId: true, amount: true, baseCurrencyAmount: true },
+        select: { fromId: true, toId: true, amount: true, baseCurrencyAmount: true, canceledAt: true },
       }),
     ]);
 
@@ -37,7 +37,7 @@ export const balancesRouter = createTRPCRouter({
       }),
       ctx.db.settlement.findMany({
         where: { groupId: input.groupId },
-        select: { fromId: true, toId: true, amount: true, baseCurrencyAmount: true },
+        select: { fromId: true, toId: true, amount: true, baseCurrencyAmount: true, canceledAt: true },
       }),
     ]);
 
@@ -59,7 +59,7 @@ export const balancesRouter = createTRPCRouter({
           },
         },
         settlements: {
-          select: { fromId: true, toId: true, amount: true, baseCurrencyAmount: true },
+          select: { fromId: true, toId: true, amount: true, baseCurrencyAmount: true, canceledAt: true },
         },
         members: {
           select: { user: { select: { id: true, name: true, image: true, venmoUsername: true } } },
@@ -165,7 +165,7 @@ export const balancesRouter = createTRPCRouter({
           },
         },
         settlements: {
-          select: { fromId: true, toId: true, amount: true, baseCurrencyAmount: true },
+          select: { fromId: true, toId: true, amount: true, baseCurrencyAmount: true, canceledAt: true },
         },
       },
     });

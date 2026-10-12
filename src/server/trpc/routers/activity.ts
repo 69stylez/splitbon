@@ -44,16 +44,39 @@ export const activityRouter = createTRPCRouter({
             })
           : [];
       const expenseById = new Map(expenses.map((e) => [e.id, e]));
+      const settlementIds = items
+        .filter((item) => item.type === 'SETTLEMENT_CREATED' && item.entityId)
+        .map((item) => item.entityId as string);
+      const settlements = settlementIds.length
+        ? await ctx.db.settlement.findMany({
+            where: { id: { in: settlementIds }, groupId: input.groupId },
+            select: { id: true, fromId: true, toId: true, canceledAt: true },
+          })
+        : [];
+      const settlementById = new Map(settlements.map((s) => [s.id, s]));
 
       return {
         items: items.map((item) => {
           const expense = item.entityId ? expenseById.get(item.entityId) : undefined;
           const hidden = !!expense?.isPrivate && expense.paidById !== ctx.user.id;
+          const settlement = item.entityId ? settlementById.get(item.entityId) : undefined;
           return {
             ...item,
             user: item.user ?? { id: item.userId ?? 'deleted', name: 'Deleted user', image: null },
             expense: expense && !hidden ? { id: expense.id, title: expense.title } : null,
             isPrivate: !!expense?.isPrivate,
+            settlement: settlement
+              ? {
+                  id: settlement.id,
+                  canceledAt: settlement.canceledAt,
+                  canCancel:
+                    !settlement.canceledAt &&
+                    (ctx.membership.role !== 'MEMBER' ||
+                      item.userId === ctx.user.id ||
+                      settlement.fromId === ctx.user.id ||
+                      settlement.toId === ctx.user.id),
+                }
+              : null,
           };
         }),
         nextCursor,

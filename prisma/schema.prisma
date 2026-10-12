@@ -354,6 +354,7 @@ model Settlement {
   to    User  @relation("SettledFor", fields: [toId], references: [id])
 
   settledAt DateTime @default(now())
+  canceledAt DateTime? // Original payment retained for history; excluded from balances
 
   @@index([groupId])
   @@index([groupId, settledAt(sort: Desc)])
@@ -388,6 +389,7 @@ enum ActivityType {
   EXPENSE_UPDATED
   EXPENSE_DELETED
   SETTLEMENT_CREATED
+  SETTLEMENT_CANCELED
   MEMBER_JOINED
   MEMBER_LEFT
   GROUP_UPDATED
