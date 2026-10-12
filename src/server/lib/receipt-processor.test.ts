@@ -12,10 +12,6 @@ vi.mock('./logger', () => ({
   logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() },
 }));
 
-vi.mock('./normalize-date', () => ({
-  normalizeDate: (value: string | undefined) => value,
-}));
-
 vi.mock('./upload-dir', () => ({
   getUploadDir: () => '/tmp/uploads',
   resolveUploadPath: (relativePath: string) => `/tmp/uploads/${relativePath}`,
@@ -133,5 +129,41 @@ describe('processReceiptImage fallback behavior', () => {
     ).rejects.toThrow('Receipt extraction failed across configured providers');
 
     expect(mockClearProviderCache).toHaveBeenCalledTimes(1);
+  });
+
+  test.each([
+    ['2024-03-01', { photoCapturedDate: '2024-02-29' }, '2024-03-01', 'printed'],
+    ['2023-02-29', { photoCapturedDate: '2024-02-29' }, '2024-02-29', 'exif'],
+    [undefined, {}, '2026-10-05', 'upload'],
+    [
+      '2024-03-01',
+      { date: '2024-03-10', dateSource: 'manual', photoCapturedDate: '2024-02-29' },
+      '2024-03-10',
+      'manual',
+    ],
+  ])('processing persists date precedence (%s)', async (printed, metadata, expected, source) => {
+    mockGetAIProvidersWithFallback.mockResolvedValue([
+      { name: 'test', extractReceipt: vi.fn().mockResolvedValue({ ...successResult, date: printed }) },
+    ]);
+    const { processReceiptImage } = await import('./receipt-processor');
+    const db = makeDbMock();
+    const result = await processReceiptImage({
+      db: db as never,
+      receiptId: 'r',
+      receipt: {
+        imagePath: 'r.jpg',
+        mimeType: 'image/jpeg',
+        extractedData: metadata,
+        createdAt: new Date('2026-10-05T12:00:00Z'),
+      },
+    });
+    expect(result.date).toBe(expected);
+    expect(db.receipt.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          extractedData: expect.objectContaining({ date: expected, dateSource: source }),
+        }),
+      }),
+    );
   });
 });

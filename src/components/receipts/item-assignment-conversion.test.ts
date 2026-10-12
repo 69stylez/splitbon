@@ -94,7 +94,7 @@ beforeEach(() => {
 test('actual scan assignment requests receipt-bound rates and displays Euro using current item sums instead of stale OCR total', () => {
   const html = render();
   expect(mocks.previewQuery).toHaveBeenLastCalledWith(
-    { groupId: 'group', receiptId: 'receipt', useLatestRate: false },
+    { groupId: 'group', receiptId: 'receipt', useLatestRate: false, date: '2026-10-01' },
     expect.objectContaining({ staleTime: 0 }),
   );
   expect(html).toContain('Euro-Vorschau');
@@ -103,6 +103,32 @@ test('actual scan assignment requests receipt-bound rates and displays Euro usin
   expect(html).toContain('Belegwährung korrigieren');
   expect(html).toContain('Ändert nur die Währung, nicht die Beträge');
   expect(html).toContain('historischen Kurses vom 2026-10-01');
+  expect(html).toContain('data-testid="receipt-date-input"');
+  expect(html).toContain('value="2026-10-01"');
+});
+
+test('booked receipt editor displays the expense date instead of the OCR date', () => {
+  const html = renderToStaticMarkup(
+    React.createElement(ItemAssignment, {
+      groupId: 'group',
+      receiptId: 'receipt',
+      expenseId: 'expense',
+      members: [],
+      onComplete: vi.fn(),
+      initial: {
+        title: 'Saved',
+        date: '2026-09-20',
+        paidById: 'user',
+        amount: 100000,
+        place: { placeName: '', latitude: null, longitude: null },
+      },
+    }),
+  );
+  expect(html).toContain('value="2026-09-20"');
+  expect(mocks.previewQuery).toHaveBeenLastCalledWith(
+    expect.objectContaining({ date: '2026-09-20' }),
+    expect.anything(),
+  );
 });
 test('currency-correction success invalidates receipt labels and conversion data together', async () => {
   render();

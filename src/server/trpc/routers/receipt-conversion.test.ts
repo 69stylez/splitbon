@@ -1,4 +1,9 @@
 import { beforeEach, expect, test, vi } from 'vitest';
+vi.mock('@/server/lib/notifications', () => ({
+  money: vi.fn(),
+  sendNotifications: vi.fn(),
+  shareChangeItems: vi.fn(() => []),
+}));
 vi.mock('@/server/auth', () => ({ auth: vi.fn() }));
 vi.mock('@/server/db', () => ({ db: {} }));
 vi.mock('@/server/lib/logger', () => ({ logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() } }));
@@ -78,6 +83,17 @@ test('backend preview-to-save keeps EGP amounts, uses the displayed printed EUR 
     source: 'receipt',
   });
   expect(db.receipt.updateMany.mock.calls[0]![0].data.extractedData.latestRateAccepted).toBe(false);
+});
+
+test('conversion preview and saved expense use the edited calendar day', async () => {
+  const { caller, input, db } = fixture();
+  const date = '2026-09-15';
+  const preview = await caller.getConversionPreview({ groupId: 'group', receiptId: 'receipt', date });
+  expect(preview.receiptDate).toBe(date);
+  expect(preview.groupRate?.requestedDate).toBe(date);
+  const result = await caller.assignItemsAndCreateExpense({ ...input, date, expectedConversion: preview.groupRate! });
+  expect(result.expenseDate).toEqual(new Date('2026-09-15T12:00:00Z'));
+  expect(db.receipt.updateMany.mock.calls[0]![0].data.extractedData.date).toBe(date);
 });
 
 test('unpreviewed or changed exchange ratio is rejected before expense writes', async () => {

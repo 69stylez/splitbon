@@ -1,4 +1,9 @@
 import { expect, test, vi } from 'vitest';
+vi.mock('@/server/lib/notifications', () => ({
+  money: vi.fn(),
+  sendNotifications: vi.fn(),
+  shareChangeItems: vi.fn(() => []),
+}));
 vi.mock('@/server/auth', () => ({ auth: vi.fn() }));
 vi.mock('@/server/db', () => ({ db: {} }));
 vi.mock('@/server/lib/logger', () => ({ logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() } }));
@@ -24,6 +29,7 @@ function fixture(assignments: { userId: string; shareOfItem: number }[] = []) {
     imagePath: 'r.jpg',
     mimeType: 'image/jpeg',
     updatedAt: new Date('2026-10-05T10:00:00Z'),
+    createdAt: new Date('2026-10-05T10:00:00Z'),
     group: { members: [{ userId: 'user' }, { userId: 'friend' }] },
     extractedData: {
       currency: 'EUR',
@@ -50,6 +56,7 @@ function fixture(assignments: { userId: string; shareOfItem: number }[] = []) {
       findUnique: vi.fn(async () => receipt),
       findUniqueOrThrow: vi.fn(async () => receipt),
       updateMany: vi.fn(async () => ({ count: 1 })),
+      update: vi.fn(async ({ data }) => ({ ...receipt, ...data })),
     },
     receiptItem: {
       findUnique: vi.fn(async () => items[0]),
@@ -67,6 +74,7 @@ function fixture(assignments: { userId: string; shareOfItem: number }[] = []) {
         category: null,
         placeName: null,
         shares: [],
+        expenseDate: new Date('2026-09-20T12:00:00Z'),
       })),
       create: vi.fn(async ({ data }) => ({ id: 'new', ...data })),
       update: vi.fn(async ({ data }) => ({ id: 'expense', ...data })),
@@ -91,6 +99,67 @@ const loggedChanges = (db: ReturnType<typeof fixture>['db']) =>
   (db.activityLog.create.mock.calls as unknown as [{ data: { type: string; metadata: Record<string, unknown> } }][])
     .map(([arg]) => arg.data)
     .filter((d) => d.type === 'RECEIPT_ITEMS_CHANGED');
+
+test('edited date persists in both a new expense and its receipt', async () => {
+  const { caller, db, base } = fixture();
+  const expense = await caller.assignItemsAndCreateExpense({
+    ...base,
+    date: '2026-09-15',
+    assignments: [{ receiptItemId: 'coffee', userIds: ['user'] }],
+  });
+  expect(expense.expenseDate).toEqual(new Date('2026-09-15T12:00:00Z'));
+  expect(db.receipt.updateMany).toHaveBeenCalledWith(
+    expect.objectContaining({
+      data: expect.objectContaining({
+        extractedData: expect.objectContaining({ date: '2026-09-15', dateSource: 'manual' }),
+      }),
+    }),
+  );
+});
+test('new expense uses the recognized receipt date when client omits it', async () => {
+  const { caller, base } = fixture();
+  const expense = await caller.assignItemsAndCreateExpense({
+    ...base,
+    assignments: [{ receiptItemId: 'coffee', userIds: ['user'] }],
+  });
+  expect(expense.expenseDate).toEqual(new Date('2026-10-01T12:00:00Z'));
+});
+test('booked expense date can be changed and is preserved when omitted', async () => {
+  const { caller, db, base } = fixture();
+  const input = { ...base, expenseId: 'expense', assignments: [{ receiptItemId: 'coffee', userIds: ['user'] }] };
+  expect((await caller.assignItemsAndCreateExpense(input)).expenseDate).toEqual(new Date('2026-09-20T12:00:00Z'));
+  expect((await caller.assignItemsAndCreateExpense({ ...input, date: '2026-09-25' })).expenseDate).toEqual(
+    new Date('2026-09-25T12:00:00Z'),
+  );
+  expect(db.activityLog.create).toHaveBeenCalledWith(
+    expect.objectContaining({
+      data: expect.objectContaining({
+        metadata: expect.objectContaining({
+          changes: expect.objectContaining({ expenseDate: ['2026-09-20T12:00:00.000Z', '2026-09-25T12:00:00.000Z'] }),
+        }),
+      }),
+    }),
+  );
+});
+test('pending receipt saves date and can reload it', async () => {
+  const { caller, db } = fixture();
+  await caller.saveForLater({ groupId: 'group', receiptId: 'receipt', date: '2026-09-15' });
+  const saved = db.receipt.update.mock.calls[0]![0].data;
+  expect(saved.extractedData).toMatchObject({ date: '2026-09-15', dateSource: 'manual', currency: 'EUR' });
+  db.receipt.findUnique.mockResolvedValue({ ...(await db.receipt.findUnique()), ...saved });
+  expect((await caller.getReceiptItems({ receiptId: 'receipt' })).receipt.extractedData?.date).toBe('2026-09-15');
+});
+test('impossible dates are refused before any writes', async () => {
+  const { caller, db, base } = fixture();
+  await expect(
+    caller.saveForLater({ groupId: 'group', receiptId: 'receipt', date: '2026-02-30' }),
+  ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
+  await expect(
+    caller.assignItemsAndCreateExpense({ ...base, date: '2026-02-30', assignments: [] }),
+  ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
+  expect(db.receipt.update).not.toHaveBeenCalled();
+  expect(db.expense.create).not.toHaveBeenCalled();
+});
 
 test('editing a line records what it was and what it became', async () => {
   const { caller, db } = fixture();
@@ -148,12 +217,12 @@ test('the category of a scan is stored and its change shows in the expense log',
     assignments: [{ receiptItemId: 'coffee', userIds: ['user'] }],
   });
   expect(db.expense.update).toHaveBeenCalledWith(
-    expect.objectContaining({ data: expect.objectContaining({ category: 'Essen' }) }),
+    expect.objectContaining({ data: expect.objectContaining({ category: 'food' }) }),
   );
   expect(db.activityLog.create).toHaveBeenCalledWith({
     data: expect.objectContaining({
       type: 'EXPENSE_UPDATED',
-      metadata: expect.objectContaining({ receiptId: 'receipt', changes: { category: [null, 'Essen'] } }),
+      metadata: expect.objectContaining({ receiptId: 'receipt', changes: { category: [null, 'food'] } }),
     }),
   });
 });
@@ -166,7 +235,7 @@ test('a new scan expense gets the chosen category', async () => {
     assignments: [{ receiptItemId: 'coffee', userIds: ['user'] }],
   });
   expect(db.expense.create).toHaveBeenCalledWith(
-    expect.objectContaining({ data: expect.objectContaining({ category: 'Essen' }) }),
+    expect.objectContaining({ data: expect.objectContaining({ category: 'food' }) }),
   );
 });
 

@@ -401,6 +401,7 @@ function ScanReceiptContent({ params }: { params: Promise<{ groupId: string }> }
                       expenseId: editExpenseId,
                       initial: {
                         title: editExpense.data.title,
+                        date: new Date(editExpense.data.expenseDate).toISOString().slice(0, 10),
                         paidById: editExpense.data.paidById,
                         amount: editExpense.data.amount,
                         category: editExpense.data.category,

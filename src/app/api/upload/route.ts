@@ -8,6 +8,7 @@ import { getUploadDir } from '@/server/lib/upload-dir';
 import { getClientIp } from '@/server/lib/client-ip';
 import { canUseGuestUploads } from '@/server/lib/guest-uploads';
 import { randomUUID } from 'crypto';
+import { readPhotoCapturedDate, resolveReceiptDate } from '@/server/lib/receipt-date';
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/heic'];
 // Fall back to 10MB when the env var is unset or non-numeric — a NaN limit
@@ -213,6 +214,7 @@ export async function POST(req: NextRequest) {
         status: 'PENDING',
         uploadedById: userId ?? null,
         isGuest,
+        extractedData: resolveReceiptDate(undefined, { photoCapturedDate: readPhotoCapturedDate(buffer) }, new Date()),
       },
     });
   } catch (error) {

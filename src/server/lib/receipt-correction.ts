@@ -4,7 +4,7 @@ import { TRPCError } from '@trpc/server';
 import { Prisma, type PrismaClient } from '@/generated/prisma/client';
 import { receiptExtractionSchema } from '../ai/schema';
 import { extractReceiptImage } from './receipt-processor';
-import { normalizeDate } from './normalize-date';
+import { resolveReceiptDate } from './receipt-date';
 import { isValidCurrency } from './exchange-rates';
 import { getUserPromptLanguage } from './user-language';
 
@@ -139,7 +139,11 @@ export async function resolveReceiptCorrection(
             message: 'Receipt changed or preview expired. Request a new preview.',
           });
         const { items, ...data } = candidate.extraction;
-        const extractedData = { ...data, date: normalizeDate(data.date), alternateTotals: [] };
+        const extractedData = {
+          ...data,
+          ...resolveReceiptDate(data.date, receipt.extractedData, receipt.createdAt),
+          alternateTotals: [],
+        };
         const updated = await tx.receipt.updateMany({
           where: { id: receiptId, groupId, status: 'COMPLETED', updatedAt: receipt.updatedAt, expense: null },
           data: {

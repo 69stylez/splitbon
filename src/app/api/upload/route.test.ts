@@ -24,7 +24,10 @@ const JPEG = new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0, 0x10, 0x4a, 0x46, 0x49, 
 
 function uploadRequest(ip: string) {
   const form = new FormData();
-  form.append('file', new File([JPEG], 'receipt.jpg', { type: 'image/jpeg' }));
+  form.append(
+    'file',
+    new File([JPEG], 'receipt.jpg', { type: 'image/jpeg', lastModified: Date.parse('2001-01-01T00:00:00Z') }),
+  );
   return new NextRequest('http://localhost/api/upload?guest=true', {
     method: 'POST',
     body: form,
@@ -53,6 +56,15 @@ afterEach(() => {
 });
 
 describe('POST /api/upload?guest=true', () => {
+  test('without capture metadata persists upload day, never file lastModified', async () => {
+    guestUploadsSetting(null);
+    const { POST } = await import('./route');
+    const today = new Date().toISOString().slice(0, 10);
+    expect((await POST(uploadRequest('203.0.113.99'))).status).toBe(200);
+    expect(mockDb.receipt.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({ extractedData: { date: today, dateSource: 'upload' } }),
+    });
+  });
   test('refuses anonymous uploads with 403 when guest uploads are disabled, writing nothing', async () => {
     guestUploadsSetting('false');
     const { POST } = await import('./route');

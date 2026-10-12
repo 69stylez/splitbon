@@ -32,6 +32,7 @@ import { ReceiptRatePreview } from './receipt-rate-preview';
 import { ReceiptHistory, scrollToItem } from './receipt-history';
 import { claimsToAssignments } from '@/lib/receipt-claims';
 import { Link } from '@/i18n/navigation';
+import { normalizeDate } from '@/server/lib/normalize-date';
 
 type Member = { id: string; name: string | null; image?: string | null | undefined };
 
@@ -70,6 +71,7 @@ export function ItemAssignment({
   /** Values of that expense; the form starts from them instead of the receipt defaults. */
   initial?: {
     title: string;
+    date: string;
     paidById: string;
     amount: number;
     place: PlaceValue;
@@ -115,12 +117,29 @@ export function ItemAssignment({
   };
   const weightsFor = (itemId: string, userIds: Set<string>) => Array.from(userIds).map((u) => countOf(itemId, u));
   const [title, setTitle] = useState('');
+  const defaultDate = () =>
+    initial?.date ??
+    normalizeDate(receiptData.data?.receipt.extractedData?.date) ??
+    (receiptData.data?.receipt.createdAt
+      ? new Date(receiptData.data.receipt.createdAt).toISOString().slice(0, 10)
+      : '');
+  const [date, setDate] = useState(defaultDate);
+  const dateInitialized = useRef(!!date);
+  useEffect(() => {
+    if (!receiptData.data || dateInitialized.current) return;
+    const receipt = receiptData.data.receipt;
+    setDate(
+      initial?.date ??
+        normalizeDate(receipt.extractedData?.date) ??
+        new Date(receipt.createdAt).toISOString().slice(0, 10),
+    );
+    dateInitialized.current = true;
+  }, [receiptData.data, initial]);
+  const validDate = normalizeDate(date) === date && !!date;
   const [place, setPlace] = useState<PlaceValue>({ placeName: '', latitude: null, longitude: null });
   const tExp = useTranslations('expenses');
-  // Receipts are mostly restaurant bills: the first preset category ("Essen") unless changed.
-  const [category, setCategory] = useState<string>(
-    () => initial?.category ?? (tExp.raw('new.categoryPresets') as string[])[0] ?? '',
-  );
+  // Persist a locale-independent preset, not the translated label.
+  const [category, setCategory] = useState<string>(() => initial?.category ?? 'food');
   const [paidById, setPaidById] = useState('');
   const [tipOverride, setTipOverride] = useState<string>('');
   // What was paid in total (with tip): the tip is whatever the items and tax leave over.
@@ -149,9 +168,9 @@ export function ItemAssignment({
 
   const [useLatestRate, setUseLatestRate] = useState(false);
   const conversionPreview = trpc.receipts.getConversionPreview.useQuery(
-    { groupId, receiptId, useLatestRate },
+    { groupId, receiptId, useLatestRate, ...(validDate ? { date } : {}) },
     {
-      enabled: !!receiptData.data?.receipt.extractedData,
+      enabled: !!receiptData.data?.receipt.extractedData && validDate,
       staleTime: 0,
       refetchInterval: 60000,
     },
@@ -515,7 +534,7 @@ export function ItemAssignment({
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!paidById || !allAssigned || !rateReady) return;
+    if (!paidById || !allAssigned || !rateReady || !validDate) return;
 
     createExpense.mutate({
       useLatestRate,
@@ -525,6 +544,7 @@ export function ItemAssignment({
       receiptId,
       ...(expenseId ? { expenseId } : {}),
       title,
+      date,
       paidById,
       category: category.trim(),
       ...(place.placeName.trim() ? { placeName: place.placeName.trim() } : {}),
@@ -543,9 +563,11 @@ export function ItemAssignment({
   }
 
   function handleSaveForLater() {
+    if (!validDate) return;
     saveForLater.mutate({
       groupId,
       receiptId,
+      date,
       paidById: paidById || null,
       assignments: Object.entries(assignments)
         .filter(([, userIds]) => userIds.size > 0)
@@ -874,7 +896,7 @@ export function ItemAssignment({
                 )}
               </div>
             )}
-            {safeExtracted.date && !chargedOk && (
+            {date && !chargedOk && (
               <label className="flex items-start gap-2 pt-2 text-xs">
                 <input
                   type="checkbox"
@@ -884,8 +906,8 @@ export function ItemAssignment({
                 />
                 <span>
                   {de
-                    ? `Aktuellen Kurs ausdrücklich als Schätzung statt des historischen Kurses vom ${safeExtracted.date.slice(0, 10)} verwenden (gedruckte Belegkurse bleiben bevorzugt).`
-                    : `Explicitly use the latest rate as an estimate instead of the historical rate for ${safeExtracted.date.slice(0, 10)} (printed receipt rates still take priority).`}
+                    ? `Aktuellen Kurs ausdrücklich als Schätzung statt des historischen Kurses vom ${date} verwenden (gedruckte Belegkurse bleiben bevorzugt).`
+                    : `Explicitly use the latest rate as an estimate instead of the historical rate for ${date} (printed receipt rates still take priority).`}
                 </span>
               </label>
             )}
@@ -934,6 +956,18 @@ export function ItemAssignment({
             <div className="space-y-2">
               <Label htmlFor="category">{tExp('new.category')}</Label>
               <CategorySelect value={category} onChange={setCategory} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="receipt-date">{tExp('new.date')}</Label>
+              <Input
+                id="receipt-date"
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                required
+                disabled={createExpense.isPending || saveForLater.isPending}
+                data-testid="receipt-date-input"
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="location">{tExp('new.location')}</Label>
@@ -1356,7 +1390,7 @@ export function ItemAssignment({
         <Button
           type="submit"
           className="w-full"
-          disabled={createExpense.isPending || !allAssigned || !paidById || !rateReady}
+          disabled={createExpense.isPending || !allAssigned || !paidById || !rateReady || !validDate}
           data-testid="create-expense-btn"
         >
           {createExpense.isPending
@@ -1376,7 +1410,7 @@ export function ItemAssignment({
             variant="outline"
             className="w-full"
             onClick={handleSaveForLater}
-            disabled={saveForLater.isPending}
+            disabled={saveForLater.isPending || !validDate}
             data-testid="save-for-later-btn"
           >
             <Bookmark className="mr-2 h-4 w-4" />

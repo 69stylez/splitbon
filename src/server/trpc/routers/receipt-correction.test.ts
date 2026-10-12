@@ -1,4 +1,9 @@
 import { beforeEach, expect, test, vi } from 'vitest';
+vi.mock('@/server/lib/notifications', () => ({
+  money: vi.fn(),
+  sendNotifications: vi.fn(),
+  shareChangeItems: vi.fn(() => []),
+}));
 vi.mock('@/server/auth', () => ({ auth: vi.fn() }));
 vi.mock('@/server/db', () => ({ db: {} }));
 vi.mock('@/server/lib/logger', () => ({ logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() } }));
@@ -27,6 +32,7 @@ function fixture() {
     groupId: 'group',
     paidById: 'user',
     updatedAt: new Date('2026-10-05T10:00:00Z'),
+    createdAt: new Date('2026-10-05T10:00:00Z'),
     group: { members: [{ userId: 'user' }], archivedAt: null },
     rawResponse: { original: true },
     extractedData: {
@@ -38,6 +44,7 @@ function fixture() {
       alternateTotals: [{ currency: 'EUR', total: 20 }],
       expenseConversion: { rate: 0.02 },
       latestRateAccepted: true,
+      photoCapturedDate: '2026-09-15',
     },
     items: [
       {
@@ -116,6 +123,24 @@ test('preview persists only a server candidate; money, items, status and raw res
   await expect(
     f.caller.confirmCorrection({ receiptId: 'receipt', groupId: 'group', token: p.token }),
   ).rejects.toMatchObject({ code: 'CONFLICT' });
+});
+
+test('confirmed correction without a valid printed date retains EXIF fallback', async () => {
+  const f = fixture();
+  extract.mockResolvedValueOnce({ extraction: { ...extraction, date: '2026-02-30' }, provider: 'mock' });
+  const p = await f.caller.previewCorrection(f.input);
+  await f.caller.confirmCorrection({ receiptId: 'receipt', groupId: 'group', token: p.token });
+  expect(f.db.receipt.updateMany).toHaveBeenCalledWith(
+    expect.objectContaining({
+      data: expect.objectContaining({
+        extractedData: expect.objectContaining({
+          date: '2026-09-15',
+          dateSource: 'exif',
+          photoCapturedDate: '2026-09-15',
+        }),
+      }),
+    }),
+  );
 });
 
 test('discard removes candidate without receipt writes, including after finalization', async () => {

@@ -13,7 +13,7 @@ export function normalizeDate(date: string | undefined): string | undefined {
   const trimmed = date.trim();
 
   // Already ISO format (YYYY-MM-DD only, no time component)
-  if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return trimmed;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return validCalendarDate(trimmed);
 
   // Match common patterns: DD/MM/YYYY, MM/DD/YYYY, DD.MM.YYYY, DD-MM-YYYY
   const match = trimmed.match(/^(\d{1,2})([\/.\-])(\d{1,2})\2(\d{2,4})$/);
@@ -53,5 +53,16 @@ export function normalizeDate(date: string | undefined): string | undefined {
 
   if (month < 1 || month > 12 || day < 1 || day > 31) return undefined;
 
-  return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+  return validCalendarDate(
+    `${String(year).padStart(4, '0')}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`,
+  );
+}
+
+function validCalendarDate(value: string): string | undefined {
+  const parsed = new Date(`${value}T12:00:00Z`);
+  return value.slice(0, 4) !== '0000' &&
+    Number.isFinite(parsed.getTime()) &&
+    parsed.toISOString().slice(0, 10) === value
+    ? value
+    : undefined;
 }

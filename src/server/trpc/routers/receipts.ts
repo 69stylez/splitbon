@@ -15,6 +15,14 @@ import { getUserPromptLanguage } from '../../lib/user-language';
 import { money, sendNotifications, shareChangeItems } from '../../lib/notifications';
 import { checkRateLimit } from '../../lib/rate-limit';
 import { openUnits } from '@/lib/receipt-claims';
+import { normalizeDate } from '../../lib/normalize-date';
+import { resolveReceiptDate } from '../../lib/receipt-date';
+import { normalizeCategory } from '@/lib/categories';
+
+const receiptDateInput = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/)
+  .refine((value) => normalizeDate(value) === value, 'Invalid calendar date');
 
 /**
  * Verify that a receipt exists and the user has access to it (via group membership).
@@ -320,6 +328,7 @@ export const receiptsRouter = createTRPCRouter({
         imagePath: receiptWithItems.imagePath,
         paidById: receiptWithItems.paidById,
         aiProvider: receiptWithItems.aiProvider,
+        createdAt: receiptWithItems.createdAt,
         extractedData: receiptWithItems.extractedData ? parseExtractedData(receiptWithItems.extractedData) : null,
       },
       items: receiptWithItems.items as ReceiptItem[],
@@ -327,11 +336,19 @@ export const receiptsRouter = createTRPCRouter({
   }),
 
   getConversionPreview: groupMemberProcedure
-    .input(z.object({ groupId: z.string(), receiptId: z.string(), useLatestRate: z.boolean().default(false) }))
+    .input(
+      z.object({
+        groupId: z.string(),
+        receiptId: z.string(),
+        date: receiptDateInput.optional(),
+        useLatestRate: z.boolean().default(false),
+      }),
+    )
     .query(async ({ ctx, input }) => {
       const receipt = await verifyReceiptAccess(ctx.db, input.receiptId, ctx.user.id);
       if (receipt.groupId && receipt.groupId !== input.groupId) throw new TRPCError({ code: 'FORBIDDEN' });
       const data = parseExtractedData(receipt.extractedData);
+      if (input.date) data.date = input.date;
       const group = await ctx.db.group.findUniqueOrThrow({ where: { id: input.groupId }, select: { currency: true } });
       const euro = await getReceiptRate(data, 'EUR', input.useLatestRate, ctx.db);
       const groupRate =
@@ -610,7 +627,7 @@ export const receiptsRouter = createTRPCRouter({
       return await processReceiptImage({
         db: ctx.db,
         receiptId: input.receiptId,
-        receipt: { imagePath: receipt.imagePath, mimeType: receipt.mimeType },
+        receipt,
         ...(language ? { language } : {}),
         logPrefix: 'receipt.retry',
       });
@@ -637,6 +654,7 @@ export const receiptsRouter = createTRPCRouter({
         groupId: z.string(),
         receiptId: z.string(),
         title: z.string().min(1).max(200),
+        date: receiptDateInput.optional(),
         paidById: z.string(),
         placeName: z.string().max(200).optional(),
         category: z.string().max(50).optional(),
@@ -700,6 +718,8 @@ export const receiptsRouter = createTRPCRouter({
       }
 
       const extractedData = parseExtractedData(receipt.extractedData);
+      const initialDate = resolveReceiptDate(extractedData.date, extractedData, receipt.createdAt ?? new Date());
+      Object.assign(extractedData, initialDate, input.date ? { date: input.date, dateSource: 'manual' } : {});
 
       const tax = extractedData.tax;
       const tip = input.tipOverride ?? extractedData.tip;
@@ -739,6 +759,7 @@ export const receiptsRouter = createTRPCRouter({
         category: string | null;
         placeName: string | null;
         baseCurrencyAmount: number | null;
+        expenseDate: Date;
         shares: { userId: string; amount: number }[];
       } | null = null;
       if (input.expenseId) {
@@ -754,6 +775,7 @@ export const receiptsRouter = createTRPCRouter({
             category: true,
             placeName: true,
             baseCurrencyAmount: true,
+            expenseDate: true,
             shares: { select: { userId: true, amount: true } },
           },
         });
@@ -770,6 +792,12 @@ export const receiptsRouter = createTRPCRouter({
       }
 
       // Calculate per-user item subtotals
+      // Older clients omitting the field must not reset an already booked date.
+      const expenseDate = input.date
+        ? new Date(`${input.date}T12:00:00Z`)
+        : (existing?.expenseDate ?? new Date(`${extractedData.date}T12:00:00Z`));
+      if (existing && !input.date && existing.expenseDate)
+        extractedData.date = existing.expenseDate.toISOString().slice(0, 10);
       const userSubtotals = new Map<string, number>();
 
       for (const assignment of input.assignments) {
@@ -904,7 +932,7 @@ export const receiptsRouter = createTRPCRouter({
         if ((!hadBefore && !input.expenseId) || sameUnits(before, after)) return [];
         return [{ itemId: item.id, itemName: item.name, before, after }];
       });
-      const category = input.category?.trim() || null;
+      const category = input.category ? normalizeCategory(input.category.trim()) || null : null;
       const expenseChanges: Record<string, [unknown, unknown]> = {};
       if (existing) {
         const next = {
@@ -914,10 +942,12 @@ export const receiptsRouter = createTRPCRouter({
           ...(input.category !== undefined ? { category } : {}),
           placeName: input.placeName || null,
           baseCurrencyAmount,
+          expenseDate: expenseDate.toISOString(),
         };
         for (const [key, value] of Object.entries(next)) {
           const old = existing[key as keyof typeof existing] ?? null;
-          if (old !== value) expenseChanges[key] = [old, value];
+          const comparable = old instanceof Date ? old.toISOString() : old;
+          if (comparable !== value) expenseChanges[key] = [comparable, value];
         }
       }
 
@@ -945,6 +975,7 @@ export const receiptsRouter = createTRPCRouter({
               where: { id: input.expenseId },
               data: {
                 title: input.title,
+                expenseDate,
                 amount: totalAmount,
                 currency: receiptCurrency,
                 exchangeRate: exchangeRate ?? 1.0,
@@ -960,6 +991,7 @@ export const receiptsRouter = createTRPCRouter({
           : await tx.expense.create({
               data: {
                 groupId: input.groupId,
+                expenseDate,
                 title: input.title,
                 amount: totalAmount,
                 currency: receiptCurrency,
@@ -1078,6 +1110,7 @@ export const receiptsRouter = createTRPCRouter({
         groupId: z.string(),
         receiptId: z.string(),
         paidById: z.string().nullable().optional(),
+        date: receiptDateInput.optional(),
         assignments: z
           .array(
             z.object({
@@ -1142,6 +1175,15 @@ export const receiptsRouter = createTRPCRouter({
           data: {
             groupId: input.groupId,
             savedById: ctx.user.id,
+            ...(input.date
+              ? {
+                  extractedData: {
+                    ...parseExtractedData(receipt.extractedData),
+                    date: input.date,
+                    dateSource: 'manual',
+                  } as Prisma.InputJsonValue,
+                }
+              : {}),
             ...(input.paidById !== undefined ? { paidById: input.paidById } : {}),
           },
         });

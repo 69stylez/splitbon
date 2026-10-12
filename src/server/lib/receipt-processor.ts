@@ -3,12 +3,12 @@ import type { Prisma } from '@/generated/prisma/client';
 import type { AIProvider } from '../ai/provider';
 import { getAIProvidersWithFallback, clearProviderCache, createProviderForModel } from '../ai/registry';
 import { logger } from './logger';
-import { normalizeDate } from './normalize-date';
+import { resolveReceiptDate } from './receipt-date';
 
 interface ProcessReceiptImageOptions {
   db: PrismaClient;
   receiptId: string;
-  receipt: { imagePath: string; mimeType: string };
+  receipt: { imagePath: string; mimeType: string; extractedData?: unknown; createdAt?: Date };
   correctionHint?: string;
   logPrefix?: string;
   /** Model of the OpenAI-compatible endpoint picked for this scan; the configured chain is the fallback. */
@@ -99,7 +99,12 @@ export async function extractReceiptImage({
 export async function processReceiptImage(options: ProcessReceiptImageOptions) {
   const { db, receiptId } = options;
   const { extraction, provider } = await extractReceiptImage(options);
-  const normalizedDate = normalizeDate(extraction.date);
+  const dateMetadata = resolveReceiptDate(
+    extraction.date,
+    options.receipt.extractedData,
+    options.receipt.createdAt ?? new Date(),
+  );
+  const normalizedDate = dateMetadata.date;
 
   // Replace items and finalize the receipt atomically — a crash or a
   // concurrent reprocess must never leave a COMPLETED receipt with missing
@@ -126,7 +131,7 @@ export async function processReceiptImage(options: ProcessReceiptImageOptions) {
         rawResponse: extraction as unknown as Prisma.InputJsonValue,
         extractedData: {
           merchantName: extraction.merchantName,
-          date: normalizedDate,
+          ...dateMetadata,
           subtotal: extraction.subtotal,
           tax: extraction.tax,
           tip: extraction.tip,
