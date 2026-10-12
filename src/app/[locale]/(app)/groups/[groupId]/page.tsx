@@ -1,6 +1,6 @@
 'use client';
 
-import { use, useState, useRef, useEffect, useMemo } from 'react';
+import { use, useState, useEffect, useMemo } from 'react';
 import { useSession } from 'next-auth/react';
 import { useLocale, useTranslations } from 'next-intl';
 import { trpc } from '@/lib/trpc';
@@ -9,9 +9,7 @@ import { buildVenmoPayUrl, isValidVenmoHandle } from '@/lib/venmo';
 import { buildPaypalEmailUrl, buildPaypalMeUrl, isValidIban, isValidPaypalEmail } from '@/lib/payments';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { UserAvatar } from '@/components/ui/user-avatar';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import {
   BarChart3,
@@ -24,6 +22,8 @@ import {
   Camera,
   Archive,
   Trash2,
+  CreditCard,
+  Landmark,
 } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { toast } from 'sonner';
@@ -52,6 +52,12 @@ export default function GroupDetailPage({ params }: { params: Promise<{ groupId:
     to?: string;
     amount?: number;
   }>({ open: false });
+  const [externalPayment, setExternalPayment] = useState<{
+    debt: { from: string; to: string; amount: number };
+    toName: string;
+    kind: 'venmo' | 'paypal';
+    currency: string;
+  } | null>(null);
 
   const t = useTranslations('groups');
   const { data: authSession } = useSession();
@@ -106,13 +112,31 @@ export default function GroupDetailPage({ params }: { params: Promise<{ groupId:
     },
   });
 
-  const settleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  useEffect(
-    () => () => {
-      if (settleTimerRef.current) clearTimeout(settleTimerRef.current);
-    },
-    [],
-  );
+  useEffect(() => {
+    if (!externalPayment) return;
+    const timer = setTimeout(() => {
+      const values = {
+        amount: formatCents(externalPayment.debt.amount, externalPayment.currency, locale),
+        name: externalPayment.toName,
+      };
+      const question =
+        externalPayment.kind === 'venmo'
+          ? t('detail.venmoPaymentConfirm', values)
+          : t('detail.paypalPaymentConfirm', values);
+      if (confirm(question)) {
+        settleVenmo.mutate({
+          groupId,
+          fromId: externalPayment.debt.from,
+          toId: externalPayment.debt.to,
+          amount: externalPayment.debt.amount,
+          currency: externalPayment.currency,
+          note: externalPayment.kind === 'venmo' ? t('detail.settledViaVenmo') : t('detail.settledViaPaypal'),
+        });
+      }
+      setExternalPayment(null);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [externalPayment, groupId, locale, settleVenmo, t]);
 
   if (group.isLoading && !group.isError) {
     return <LoadingSpinner />;
@@ -141,24 +165,9 @@ export default function GroupDetailPage({ params }: { params: Promise<{ groupId:
     toName: string,
     kind: 'venmo' | 'paypal',
   ) {
-    if (settleTimerRef.current) return;
+    if (externalPayment) return;
     window.open(url, '_blank', 'noopener,noreferrer');
-    settleTimerRef.current = setTimeout(() => {
-      settleTimerRef.current = null;
-      const values = { amount: formatCents(debt.amount, g.currency, locale), name: toName };
-      const question =
-        kind === 'venmo' ? t('detail.venmoPaymentConfirm', values) : t('detail.paypalPaymentConfirm', values);
-      if (confirm(question)) {
-        settleVenmo.mutate({
-          groupId,
-          fromId: debt.from,
-          toId: debt.to,
-          amount: debt.amount,
-          currency: g.currency,
-          note: kind === 'venmo' ? t('detail.settledViaVenmo') : t('detail.settledViaPaypal'),
-        });
-      }
-    }, 2000);
+    setExternalPayment({ debt, toName, kind, currency: g.currency });
   }
   // Ways the signed-in person can pay a debt of theirs: what the receiver has saved, as ready-made links
   function paymentOptions(debt: { from: string; to: string; amount: number }) {
@@ -189,15 +198,56 @@ export default function GroupDetailPage({ params }: { params: Promise<{ groupId:
     if (!isMyDebt) return null;
     const receiver = memberMap.get(to);
     const toName = receiver?.name ?? receiver?.email ?? t('detail.unknown');
-    if (!venmoUrl && !paypalUrl && !bankIban) {
-      return (
-        <p className="rounded-md bg-muted p-3 text-sm text-muted-foreground">
-          {t('detail.noPaymentData', { name: toName })}
-        </p>
-      );
-    }
     return (
-      <div className="flex flex-wrap gap-2" data-testid="settle-pay-options">
+      <div className="space-y-3" data-testid="settle-pay-options">
+        <div className="grid gap-2 sm:grid-cols-2">
+          <Button
+            type="button"
+            size="lg"
+            className="h-auto min-h-20 justify-start gap-3 px-4 py-3 text-left"
+            disabled={!paypalUrl}
+            data-testid="settle-pay-paypal"
+            onClick={() => {
+              if (!paypalUrl) return;
+              setSettleState((st) => ({ ...st, open: false }));
+              startExternalPayment(paypalUrl, debt, toName, 'paypal');
+            }}
+          >
+            <CreditCard className="h-5 w-5 shrink-0" />
+            <span className="flex flex-col items-start gap-0.5">
+              <span>{t('detail.payViaPaypal')}</span>
+              <span className="text-xs font-normal opacity-80">
+                {paypalUrl ? toName : t('detail.noPaymentData', { name: toName })}
+              </span>
+            </span>
+          </Button>
+          <Button
+            type="button"
+            size="lg"
+            className="h-auto min-h-20 justify-start gap-3 px-4 py-3 text-left"
+            disabled={!bankIban}
+            data-testid="settle-pay-bank"
+            onClick={() => {
+              if (!bankIban) return;
+              setSettleState((st) => ({ ...st, open: false }));
+              setBankTransfer({
+                fromId: from,
+                toId: to,
+                amount,
+                holder: receiver?.ibanHolder?.trim() || toName,
+                iban: bankIban,
+              });
+            }}
+          >
+            <Landmark className="h-5 w-5 shrink-0" />
+            <span className="flex flex-col items-start gap-0.5">
+              <span>IBAN · {t('detail.payViaBank')}</span>
+              <span className="text-xs font-normal opacity-80">
+                {bankIban ? receiver?.ibanHolder?.trim() || toName : t('detail.noPaymentData', { name: toName })}
+              </span>
+            </span>
+          </Button>
+        </div>
         {venmoUrl && (
           <Button
             type="button"
@@ -209,39 +259,6 @@ export default function GroupDetailPage({ params }: { params: Promise<{ groupId:
             }}
           >
             {t('detail.payViaVenmo')}
-          </Button>
-        )}
-        {paypalUrl && (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            data-testid="settle-pay-paypal"
-            onClick={() => {
-              setSettleState((st) => ({ ...st, open: false }));
-              startExternalPayment(paypalUrl, debt, toName, 'paypal');
-            }}
-          >
-            {t('detail.payViaPaypal')}
-          </Button>
-        )}
-        {bankIban && (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              setSettleState((st) => ({ ...st, open: false }));
-              setBankTransfer({
-                fromId: from,
-                toId: to,
-                amount,
-                holder: receiver?.ibanHolder?.trim() || toName,
-                iban: bankIban,
-              });
-            }}
-          >
-            {t('detail.payViaBank')}
           </Button>
         )}
       </div>
@@ -321,37 +338,6 @@ export default function GroupDetailPage({ params }: { params: Promise<{ groupId:
       </div>
 
       <OpenClaims groupId={groupId} />
-
-      {/* Members */}
-      <div className="flex flex-wrap gap-2">
-        {g.members.map((m) => (
-          <div
-            key={m.user.id}
-            className={`flex items-center gap-2 rounded-full py-1 pr-3 pl-1 ${
-              m.user.isPlaceholder ? 'border border-dashed border-muted-foreground/40 bg-muted/50' : 'bg-muted'
-            }`}
-          >
-            <UserAvatar
-              image={m.user.image}
-              id={m.user.id}
-              name={m.user.placeholderName ?? m.user.name}
-              email={m.user.email}
-              className="h-6 w-6"
-            />
-            <span className="text-sm font-medium">{m.user.placeholderName ?? m.user.name ?? m.user.email}</span>
-            {m.role === 'OWNER' && (
-              <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">
-                {t('detail.owner')}
-              </span>
-            )}
-            {m.user.isPlaceholder && (
-              <Badge variant="outline" className="ml-0.5 text-[10px]">
-                {t('detail.pending')}
-              </Badge>
-            )}
-          </div>
-        ))}
-      </div>
 
       {/* The two things people do most, right at the top */}
       {!g.archivedAt && (

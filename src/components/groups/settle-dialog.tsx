@@ -117,6 +117,17 @@ function SettleDialogBody({
     );
   }
 
+  if (paymentActions && !showManual) {
+    return (
+      <div className="space-y-3">
+        {paymentActions}
+        <Button type="button" variant="outline" className="w-full" onClick={() => setShowManual(true)}>
+          {t('settle.manual')}
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <>
       {paymentActions}
