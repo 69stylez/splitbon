@@ -1481,11 +1481,21 @@ export const receiptsRouter = createTRPCRouter({
     if (!receipt) {
       throw new TRPCError({ code: 'NOT_FOUND' });
     }
-    // Only the uploader or the person who saved it can delete it
+    // Uploaders, savers and admins/owners of this receipt's group may delete it.
     const isUploader = receipt.uploadedById === ctx.user.id;
-    const isSaver = receipt.savedById && receipt.savedById === ctx.user.id;
-    if (!isUploader && !isSaver) {
-      throw new TRPCError({ code: 'FORBIDDEN' });
+    const isSaver = receipt.savedById === ctx.user.id;
+    let isGroupAdmin = false;
+    if (!isUploader && !isSaver && receipt.groupId) {
+      const membership = await ctx.db.groupMember.findUnique({
+        where: { userId_groupId: { userId: ctx.user.id, groupId: receipt.groupId } },
+      });
+      isGroupAdmin = membership?.role === 'ADMIN' || membership?.role === 'OWNER';
+    }
+    if (!isUploader && !isSaver && !isGroupAdmin) {
+      throw new TRPCError({
+        code: 'FORBIDDEN',
+        message: 'Only the uploader, the person who saved the receipt, or a group admin can delete it.',
+      });
     }
     // Can't delete if already linked to expense
     const expense = await ctx.db.expense.findUnique({

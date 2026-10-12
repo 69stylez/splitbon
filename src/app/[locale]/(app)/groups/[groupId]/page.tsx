@@ -89,7 +89,11 @@ export default function GroupDetailPage({ params }: { params: Promise<{ groupId:
   const pendingReceipts = trpc.receipts.listPending.useQuery({ groupId });
   const venmoSetting = trpc.admin.getVenmoEnabled.useQuery();
   const deletePending = trpc.receipts.deletePending.useMutation({
-    onSuccess: () => pendingReceipts.refetch(),
+    onSuccess: () => {
+      pendingReceipts.refetch();
+      utils.receipts.listOpenClaims.invalidate();
+    },
+    onError: (err) => toast.error(err.message),
   });
 
   const utils = trpc.useUtils();
