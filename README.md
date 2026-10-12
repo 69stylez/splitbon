@@ -91,6 +91,24 @@ Backups, upgrades and prebuilt image tags are covered in [Upgrading and backups]
 
 Splitbon also has a built-in **How it works** page with short videos, and a feedback page that turns a report into a prefilled GitHub issue.
 
+## Translation status
+
+All language packs contain the same 1,219 UI keys. The bar shows the share of texts that differ from the English source; product names and technical terms can legitimately remain English.
+
+| Language | Status | UI text distinct from English |
+| --- | --- | --- |
+| English | ✅ Verified | `██████████` 100% |
+| German | ✅ Verified | `██████████` 100% |
+| Spanish | ⚠️ Partial | `████████░░` 75% |
+| Swedish | ⚠️ Partial | `████████░░` 75% |
+| French | ⚠️ Partial | `████████░░` 75% |
+| Portuguese (BR) | ⚠️ Partial | `████████░░` 75% |
+| Japanese | ⚠️ Partial | `████████░░` 76% |
+| Chinese (Simplified) | ⚠️ Partial | `████████░░` 76% |
+| Korean | ⚠️ Partial | `████████░░` 76% |
+
+Partial languages are usable, but some screens can still show English. Run `npm run lint:i18n` to ensure every language pack keeps the same keys.
+
 ## How it compares
 
 ✅ yes · ⚠️ partly, paid, or needs setup · ❌ no · ➖ not documented
