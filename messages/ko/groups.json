@@ -73,6 +73,8 @@
     "balancePays": "pays",
     "balanceEven": "settled",
     "balancePaidOwes": "paid {paid} · share {owes}",
+    "showMoreBalances": "{count}명 더 보기",
+    "showFewerBalances": "적게 보기",
     "today": "Today",
     "yesterday": "Yesterday",
     "noneForFilter": "No expenses for this person.",
@@ -139,7 +141,9 @@
     "useSuggested": "제안 금액 사용: {amount}",
     "note": "메모 (선택사항)",
     "notePlaceholder": "예: Venmo, 현금",
-    "unnamed": "이름 없음"
+    "unnamed": "이름 없음",
+    "suggestions": "추천 결제",
+    "manual": "수동으로 결제 기록"
   },
   "invite": {
     "title": "그룹에 초대",

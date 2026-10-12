@@ -73,6 +73,8 @@
     "balancePays": "pays",
     "balanceEven": "settled",
     "balancePaidOwes": "paid {paid} · share {owes}",
+    "showMoreBalances": "Mostrar {count} personas más",
+    "showFewerBalances": "Mostrar menos personas",
     "today": "Today",
     "yesterday": "Yesterday",
     "noneForFilter": "No expenses for this person.",
@@ -139,7 +141,9 @@
     "notePlaceholder": "p. ej., Venmo, efectivo",
     "submit": "Registrar pago",
     "submitting": "Registrando...",
-    "unnamed": "Sin nombre"
+    "unnamed": "Sin nombre",
+    "suggestions": "Pagos sugeridos",
+    "manual": "Registrar pago manualmente"
   },
   "invite": {
     "title": "Invitar al grupo",

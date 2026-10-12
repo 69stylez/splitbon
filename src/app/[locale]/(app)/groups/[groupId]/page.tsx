@@ -19,7 +19,6 @@ import {
   Plus,
   Settings,
   UserPlus,
-  ArrowRight,
   Receipt,
   Handshake,
   Camera,
@@ -34,15 +33,7 @@ import { BankTransferDialog } from '@/components/groups/bank-transfer-dialog';
 import { OpenClaims } from '@/components/receipts/open-claims';
 import { MySpendingCard } from '@/components/groups/my-spending-card';
 import { BalanceStandings } from '@/components/groups/balance-standings';
-import {
-  ExpenseRow,
-  MemberAvatar,
-  PersonFilter,
-  dayLabel,
-  involves,
-  memberName,
-  type RowMember,
-} from '@/components/expenses/expense-row';
+import { ExpenseRow, PersonFilter, dayLabel, involves, type RowMember } from '@/components/expenses/expense-row';
 
 export default function GroupDetailPage({ params }: { params: Promise<{ groupId: string }> }) {
   const { groupId } = use(params);
@@ -406,7 +397,13 @@ export default function GroupDetailPage({ params }: { params: Promise<{ groupId:
 
       {/* Simplified Debts */}
       {debts.data && debts.data.debts.length > 0 && (
-        <Card>
+        <Card
+          className="cursor-pointer transition-colors hover:bg-muted/40"
+          onClick={(event) => {
+            if ((event.target as HTMLElement).closest('button')) return;
+            setSettleState({ open: true });
+          }}
+        >
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base" data-testid="balances-title">
@@ -425,104 +422,15 @@ export default function GroupDetailPage({ params }: { params: Promise<{ groupId:
                 members={rowMembers}
                 currency={g.currency}
                 myId={myId}
+                priorityIds={
+                  myId
+                    ? debts.data.debts.flatMap((debt) =>
+                        debt.from === myId ? [debt.to] : debt.to === myId ? [debt.from] : [],
+                      )
+                    : []
+                }
               />
             )}
-            <div className="space-y-1.5">
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                {t('detail.howToSettle')}
-              </p>
-              {debts.data.debts.map((debt, i) => {
-                const from = memberMap.get(debt.from);
-                const to = memberMap.get(debt.to);
-                const toName = to?.name ?? to?.email ?? t('detail.unknown');
-                const { venmoUrl, paypalUrl, bankIban } = paymentOptions(debt);
-                return (
-                  <div key={i} className="flex flex-wrap items-center gap-2">
-                    <button
-                      type="button"
-                      aria-label={`${memberName(from, t('detail.unknown'))} → ${toName}: ${formatCents(debt.amount, g.currency, locale)}`}
-                      className={`flex flex-1 items-center gap-2 rounded-xl border p-2.5 text-sm transition-all hover:bg-muted/70 hover:shadow-sm ${
-                        debt.from === myId || debt.to === myId ? 'border-primary/40 bg-primary/5' : ''
-                      }`}
-                      onClick={() =>
-                        setSettleState({
-                          open: true,
-                          from: debt.from,
-                          to: debt.to,
-                          amount: debt.amount,
-                        })
-                      }
-                    >
-                      <MemberAvatar member={rowMembers.get(debt.from)} id={debt.from} className="h-7 w-7 text-[10px]" />
-                      <span className="truncate text-xs font-medium sm:text-sm">
-                        {debt.from === myId ? t('detail.you') : memberName(from, t('detail.unknown')).split(' ')[0]}
-                      </span>
-                      <span className="flex shrink-0 flex-col items-center px-1">
-                        <span className="text-xs font-semibold tabular-nums">
-                          {formatCents(debt.amount, g.currency, locale)}
-                        </span>
-                        <ArrowRight className="h-3.5 w-3.5 text-muted-foreground" />
-                      </span>
-                      <MemberAvatar member={rowMembers.get(debt.to)} id={debt.to} className="h-7 w-7 text-[10px]" />
-                      <span className="truncate text-xs font-medium sm:text-sm">
-                        {debt.to === myId ? t('detail.you') : toName.split(' ')[0]}
-                      </span>
-                      <Handshake className="ml-auto h-4 w-4 shrink-0 text-muted-foreground" />
-                    </button>
-                    {venmoUrl && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="shrink-0 text-[#008CFF] hover:text-[#0070CC]"
-                        disabled={settleVenmo.isPending}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          startExternalPayment(venmoUrl, debt, toName, 'venmo');
-                        }}
-                        data-testid={`venmo-settle-${i}`}
-                      >
-                        {t('detail.payViaVenmo')}
-                      </Button>
-                    )}
-                    {paypalUrl && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="shrink-0 text-[#0070BA] hover:text-[#005C99]"
-                        disabled={settleVenmo.isPending}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          startExternalPayment(paypalUrl, debt, toName, 'paypal');
-                        }}
-                        data-testid={`paypal-settle-${i}`}
-                      >
-                        {t('detail.payViaPaypal')}
-                      </Button>
-                    )}
-                    {bankIban && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="shrink-0"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setBankTransfer({
-                            fromId: debt.from,
-                            toId: debt.to,
-                            amount: debt.amount,
-                            holder: to?.ibanHolder?.trim() || toName,
-                            iban: bankIban,
-                          });
-                        }}
-                        data-testid={`bank-settle-${i}`}
-                      >
-                        {t('detail.payViaBank')}
-                      </Button>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
           </CardContent>
         </Card>
       )}
@@ -695,9 +603,18 @@ export default function GroupDetailPage({ params }: { params: Promise<{ groupId:
         {...(settleState.from !== undefined ? { suggestedFrom: settleState.from } : {})}
         {...(settleState.to !== undefined ? { suggestedTo: settleState.to } : {})}
         {...(settleState.amount !== undefined ? { suggestedAmount: settleState.amount } : {})}
+        suggestions={debts.data?.debts ?? []}
+        onSelectSuggestion={(suggestion) =>
+          setSettleState({
+            open: true,
+            from: suggestion.from,
+            to: suggestion.to,
+            amount: suggestion.amount,
+          })
+        }
         currency={g.currency}
         open={settleState.open}
-        onOpenChange={(open) => setSettleState((s) => ({ ...s, open }))}
+        onOpenChange={(open) => setSettleState(open ? { open: true } : { open: false })}
       />
     </div>
   );

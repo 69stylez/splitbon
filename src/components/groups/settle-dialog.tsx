@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 type Member = { id: string; name: string | null };
+type SuggestedPayment = { from: string; to: string; amount: number };
 
 export function SettleDialog({
   groupId,
@@ -17,6 +18,8 @@ export function SettleDialog({
   suggestedFrom,
   suggestedTo,
   suggestedAmount,
+  suggestions = [],
+  onSelectSuggestion,
   currency,
   open,
   onOpenChange,
@@ -27,6 +30,8 @@ export function SettleDialog({
   suggestedFrom?: string;
   suggestedTo?: string;
   suggestedAmount?: number;
+  suggestions?: SuggestedPayment[];
+  onSelectSuggestion?: (suggestion: SuggestedPayment) => void;
   currency: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -43,23 +48,85 @@ export function SettleDialog({
           <DialogDescription>{t('settle.description')}</DialogDescription>
         </DialogHeader>
 
-        {open && paymentActions}
-
-        {/* Mounted only while open so each open starts from the current
-            suggestions (fresh useState initializers — no reset effect). */}
         {open && (
-          <SettleForm
+          <SettleDialogBody
             groupId={groupId}
             members={members}
             {...(suggestedFrom !== undefined ? { suggestedFrom } : {})}
             {...(suggestedTo !== undefined ? { suggestedTo } : {})}
             {...(suggestedAmount !== undefined ? { suggestedAmount } : {})}
+            suggestions={suggestions}
+            {...(onSelectSuggestion !== undefined ? { onSelectSuggestion } : {})}
             currency={currency}
             onOpenChange={onOpenChange}
+            paymentActions={paymentActions}
           />
         )}
       </DialogContent>
     </Dialog>
+  );
+}
+
+/** Mounted only while open so its mode starts fresh for every dialog visit. */
+function SettleDialogBody({
+  suggestedFrom,
+  suggestedTo,
+  suggestedAmount,
+  suggestions,
+  onSelectSuggestion,
+  paymentActions,
+  ...formProps
+}: Omit<Parameters<typeof SettleForm>[0], 'suggestedFrom' | 'suggestedTo' | 'suggestedAmount'> & {
+  suggestedFrom?: string;
+  suggestedTo?: string;
+  suggestedAmount?: number;
+  suggestions: SuggestedPayment[];
+  onSelectSuggestion?: (suggestion: SuggestedPayment) => void;
+  paymentActions?: ReactNode;
+}) {
+  const t = useTranslations('groups');
+  const locale = useLocale();
+  const [showManual, setShowManual] = useState(false);
+  const hasSuggestion = suggestedFrom !== undefined && suggestedTo !== undefined && suggestedAmount !== undefined;
+
+  if (!hasSuggestion && !showManual && suggestions.length > 0) {
+    const names = new Map(formProps.members.map((member) => [member.id, member.name ?? t('settle.unnamed')]));
+    return (
+      <div className="space-y-3">
+        <p className="text-sm font-medium">{t('settle.suggestions')}</p>
+        <div className="space-y-2">
+          {suggestions.map((suggestion, index) => (
+            <Button
+              key={`${suggestion.from}-${suggestion.to}-${suggestion.amount}-${index}`}
+              type="button"
+              variant="outline"
+              className="h-auto w-full justify-between py-3 text-left"
+              onClick={() => onSelectSuggestion?.(suggestion)}
+            >
+              <span>
+                {names.get(suggestion.from)} → {names.get(suggestion.to)}
+              </span>
+              <span className="tabular-nums">{formatCents(suggestion.amount, formProps.currency, locale)}</span>
+            </Button>
+          ))}
+        </div>
+        <Button type="button" variant="ghost" className="w-full" onClick={() => setShowManual(true)}>
+          {t('settle.manual')}
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      {paymentActions}
+      <SettleForm
+        {...formProps}
+        {...(suggestedFrom !== undefined ? { suggestedFrom } : {})}
+        {...(suggestedTo !== undefined ? { suggestedTo } : {})}
+        {...(suggestedAmount !== undefined ? { suggestedAmount } : {})}
+      />
+    </>
   );
 }
 

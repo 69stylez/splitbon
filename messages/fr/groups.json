@@ -73,6 +73,8 @@
     "balancePays": "pays",
     "balanceEven": "settled",
     "balancePaidOwes": "paid {paid} · share {owes}",
+    "showMoreBalances": "Afficher {count} personnes de plus",
+    "showFewerBalances": "Afficher moins de personnes",
     "today": "Today",
     "yesterday": "Yesterday",
     "noneForFilter": "No expenses for this person.",
@@ -139,7 +141,9 @@
     "useSuggested": "Utiliser le montant suggéré : {amount}",
     "note": "Note (facultatif)",
     "notePlaceholder": "ex. Venmo, espèces",
-    "unnamed": "Sans nom"
+    "unnamed": "Sans nom",
+    "suggestions": "Paiements suggérés",
+    "manual": "Enregistrer un paiement manuellement"
   },
   "invite": {
     "title": "Inviter dans le groupe",

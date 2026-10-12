@@ -16,7 +16,7 @@ type Totals = {
   categories: { category: string | null; amount: number }[];
 };
 
-/** "My spending" overview on the group page: paid, share, balance, split by category, budget. */
+/** Compact spending overview on the group page: total, personal context, categories and budget. */
 export function MySpendingCard({
   groupId,
   totals,
@@ -36,8 +36,6 @@ export function MySpendingCard({
   const tExp = useTranslations('expenses');
   const presets = tExp.raw('new.categoryPresets') as string[];
   const money = (c: number) => formatCents(c, currency, locale);
-  const net = totals.paid - totals.share;
-  const sharePct = totals.total > 0 ? Math.round((totals.share / totals.total) * 100) : 0;
 
   const top = totals.categories.slice(0, 5);
   const restValue = totals.categories.slice(5).reduce((a, c) => a + c.amount, 0);
@@ -48,24 +46,6 @@ export function MySpendingCard({
       value: c.amount,
     })),
     ...(restValue > 0 ? [{ label: t('stats.other'), icon: '…', value: restValue }] : []),
-  ];
-
-  const tiles = [
-    { icon: '💳', label: t('detail.myPaid'), value: money(totals.paid), sub: '' },
-    {
-      icon: '🧾',
-      label: t('detail.myShare'),
-      value: money(totals.share),
-      sub: t('detail.myShareOfTotal', { pct: sharePct }),
-    },
-    { icon: '🌍', label: t('detail.myTotalAll'), value: money(totals.total), sub: '' },
-    {
-      icon: net >= 0 ? '⬆️' : '⬇️',
-      label: t('detail.myBalance'),
-      value: `${net > 0 ? '+' : ''}${money(net)}`,
-      sub: net > 0 ? t('detail.myBalanceGet') : net < 0 ? t('detail.myBalanceOwe') : t('detail.myBalanceEven'),
-      tone: net > 0 ? 'text-emerald-600 dark:text-emerald-400' : net < 0 ? 'text-red-600 dark:text-red-400' : '',
-    },
   ];
 
   return (
@@ -83,18 +63,12 @@ export function MySpendingCard({
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {tiles.map((tile) => (
-            <div key={tile.label} className="rounded-lg border p-3">
-              <p className="text-xs text-muted-foreground">
-                <span className="mr-1">{tile.icon}</span>
-                {tile.label}
-              </p>
-              <p className={`text-lg font-bold tabular-nums ${tile.tone ?? ''}`}>{tile.value}</p>
-              {tile.sub && <p className="text-xs text-muted-foreground">{tile.sub}</p>}
-            </div>
-          ))}
-        </div>
+        <p className="text-sm text-muted-foreground">
+          <span className="text-xl font-bold text-foreground tabular-nums">{money(totals.total)}</span>{' '}
+          {t('detail.totalSpent').toLocaleLowerCase(locale)}
+          <span className="mx-2">·</span>
+          {t('detail.myPaid')} <span className="font-medium text-foreground tabular-nums">{money(totals.paid)}</span>
+        </p>
 
         {slices.length > 0 && totals.share > 0 && (
           <div className="space-y-2">

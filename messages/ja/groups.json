@@ -73,6 +73,8 @@
     "balancePays": "pays",
     "balanceEven": "settled",
     "balancePaidOwes": "paid {paid} · share {owes}",
+    "showMoreBalances": "さらに{count}人を表示",
+    "showFewerBalances": "表示を減らす",
     "today": "Today",
     "yesterday": "Yesterday",
     "noneForFilter": "No expenses for this person.",
@@ -139,7 +141,9 @@
     "useSuggested": "提案額を使用: {amount}",
     "note": "メモ（任意）",
     "notePlaceholder": "例：Venmo、現金",
-    "unnamed": "名前なし"
+    "unnamed": "名前なし",
+    "suggestions": "支払いの提案",
+    "manual": "手動で支払いを記録"
   },
   "invite": {
     "title": "グループに招待",

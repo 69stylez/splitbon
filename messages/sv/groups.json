@@ -73,6 +73,8 @@
     "balancePays": "pays",
     "balanceEven": "settled",
     "balancePaidOwes": "paid {paid} · share {owes}",
+    "showMoreBalances": "Visa {count} personer till",
+    "showFewerBalances": "Visa färre personer",
     "today": "Today",
     "yesterday": "Yesterday",
     "noneForFilter": "No expenses for this person.",
@@ -139,7 +141,9 @@
     "useSuggested": "Använd föreslaget: {amount}",
     "note": "Anteckning (valfritt)",
     "notePlaceholder": "t.ex. Venmo, kontant",
-    "unnamed": "Namnlös"
+    "unnamed": "Namnlös",
+    "suggestions": "Föreslagna betalningar",
+    "manual": "Registrera betalning manuellt"
   },
   "invite": {
     "title": "Bjud in till grupp",

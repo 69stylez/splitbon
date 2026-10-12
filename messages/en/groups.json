@@ -73,6 +73,8 @@
     "balancePays": "pays",
     "balanceEven": "settled",
     "balancePaidOwes": "paid {paid} · share {owes}",
+    "showMoreBalances": "Show {count} more people",
+    "showFewerBalances": "Show fewer people",
     "today": "Today",
     "yesterday": "Yesterday",
     "noneForFilter": "No expenses for this person.",
@@ -139,7 +141,9 @@
     "notePlaceholder": "e.g., Venmo, cash",
     "submit": "Record Payment",
     "submitting": "Recording...",
-    "unnamed": "Unnamed"
+    "unnamed": "Unnamed",
+    "suggestions": "Suggested payments",
+    "manual": "Record payment manually"
   },
   "invite": {
     "title": "Invite to group",

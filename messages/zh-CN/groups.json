@@ -73,6 +73,8 @@
     "balancePays": "pays",
     "balanceEven": "settled",
     "balancePaidOwes": "paid {paid} · share {owes}",
+    "showMoreBalances": "显示另外 {count} 人",
+    "showFewerBalances": "显示更少人员",
     "today": "Today",
     "yesterday": "Yesterday",
     "noneForFilter": "No expenses for this person.",
@@ -139,7 +141,9 @@
     "useSuggested": "使用建议金额：{amount}",
     "note": "备注（可选）",
     "notePlaceholder": "例如：Venmo、现金",
-    "unnamed": "未命名"
+    "unnamed": "未命名",
+    "suggestions": "建议付款",
+    "manual": "手动记录付款"
   },
   "invite": {
     "title": "邀请加入群组",

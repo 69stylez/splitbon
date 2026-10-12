@@ -1,32 +1,48 @@
 'use client';
 
+import { useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { formatCents } from '@/lib/money';
 import { MemberAvatar, memberName, type RowMember } from '@/components/expenses/expense-row';
 
 /**
- * Where everyone stands: a bar per person that grows right (green, gets money back) or left
- * (red, still has to pay), with what they paid and what their shares came to.
+ * Where everyone stands: green credit bars extend right from the center and red debt bars
+ * extend left. Direct settlement partners can be pinned to the top.
  */
 export function BalanceStandings({
   balances,
   members,
   currency,
   myId,
+  priorityIds = [],
 }: {
   balances: { userId: string; paid: number; owes: number; net: number }[];
   members: Map<string, RowMember>;
   currency: string;
   myId: string | undefined;
+  priorityIds?: string[];
 }) {
   const t = useTranslations('groups');
   const locale = useLocale();
-  const rows = [...balances].sort((a, b) => b.net - a.net);
+  const [expanded, setExpanded] = useState(false);
+  const priority = new Map(priorityIds.map((id, index) => [id, index]));
+  const rows = [...balances].sort((a, b) => {
+    const aPriority = priority.get(a.userId);
+    const bPriority = priority.get(b.userId);
+    if (aPriority !== undefined || bPriority !== undefined) {
+      if (aPriority === undefined) return 1;
+      if (bPriority === undefined) return -1;
+      return aPriority - bPriority;
+    }
+    return Math.abs(b.net) - Math.abs(a.net);
+  });
   const max = Math.max(1, ...rows.map((r) => Math.abs(r.net)));
+  const visibleRows = expanded ? rows : rows.slice(0, 5);
+  const hiddenCount = Math.max(0, rows.length - visibleRows.length);
 
   return (
     <div className="space-y-2.5" data-testid="balance-standings">
-      {rows.map((r) => {
+      {visibleRows.map((r) => {
         const m = members.get(r.userId);
         const width = `${Math.max(2, (Math.abs(r.net) / max) * 50)}%`;
         const even = Math.abs(r.net) < 1;
@@ -60,15 +76,18 @@ export function BalanceStandings({
                 />
               )}
             </div>
-            <p className="text-[11px] text-muted-foreground tabular-nums">
-              {t('detail.balancePaidOwes', {
-                paid: formatCents(r.paid, currency, locale),
-                owes: formatCents(r.owes, currency, locale),
-              })}
-            </p>
           </div>
         );
       })}
+      {rows.length > 5 && (
+        <button
+          type="button"
+          className="text-sm font-medium text-primary hover:underline"
+          onClick={() => setExpanded((value) => !value)}
+        >
+          {expanded ? t('detail.showFewerBalances') : t('detail.showMoreBalances', { count: hiddenCount })}
+        </button>
+      )}
     </div>
   );
 }

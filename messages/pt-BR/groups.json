@@ -73,6 +73,8 @@
     "balancePays": "pays",
     "balanceEven": "settled",
     "balancePaidOwes": "paid {paid} · share {owes}",
+    "showMoreBalances": "Mostrar mais {count} pessoas",
+    "showFewerBalances": "Mostrar menos pessoas",
     "today": "Today",
     "yesterday": "Yesterday",
     "noneForFilter": "No expenses for this person.",
@@ -139,7 +141,9 @@
     "useSuggested": "Usar sugerido: {amount}",
     "note": "Nota (opcional)",
     "notePlaceholder": "ex. Venmo, dinheiro",
-    "unnamed": "Sem nome"
+    "unnamed": "Sem nome",
+    "suggestions": "Pagamentos sugeridos",
+    "manual": "Registrar pagamento manualmente"
   },
   "invite": {
     "title": "Convidar para o grupo",
