@@ -181,6 +181,9 @@ export function PersonFilter({
   myId: string | undefined;
 }) {
   const t = useTranslations('groups');
+  const orderedMembers = [...members].sort((a, b) => Number(b.id === myId) - Number(a.id === myId));
+  // Named chips are useful in small groups, but would otherwise crowd the group page.
+  const visibleMembers = members.length <= 6 ? orderedMembers : orderedMembers.filter((member) => member.id === myId);
   const chip = (active: boolean) =>
     `flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
       active ? 'border-primary bg-primary text-primary-foreground' : 'bg-background hover:bg-muted'
@@ -190,7 +193,7 @@ export function PersonFilter({
       <button type="button" className={chip(value === '')} onClick={() => onChange('')}>
         {t('detail.filterAll')}
       </button>
-      {members.map((m) => (
+      {visibleMembers.map((m) => (
         <button
           key={m.id}
           type="button"

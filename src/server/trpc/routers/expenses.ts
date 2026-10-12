@@ -106,38 +106,48 @@ export const expensesRouter = createTRPCRouter({
     });
   }),
 
-  // Eigene Summen in Gruppenwaehrung: was ich bezahlt habe und mein Anteil an allen Ausgaben
-  myTotals: groupMemberProcedure.input(z.object({ groupId: z.string() })).query(async ({ ctx, input }) => {
-    const expenses = await ctx.db.expense.findMany({
-      where: { groupId: input.groupId, OR: [{ isPrivate: false }, { paidById: ctx.user.id }] },
-      select: {
-        amount: true,
-        baseCurrencyAmount: true,
-        category: true,
-        paidById: true,
-        shares: { where: { userId: ctx.user.id }, select: { amount: true } },
-      },
-    });
-    let paid = 0;
-    let share = 0;
-    let total = 0;
-    const byCategory = new Map<string, number>();
-    for (const e of expenses) {
-      const factor = e.baseCurrencyAmount != null && e.amount > 0 ? e.baseCurrencyAmount / e.amount : 1;
-      total += e.baseCurrencyAmount ?? e.amount;
-      if (e.paidById === ctx.user.id) paid += e.baseCurrencyAmount ?? e.amount;
-      for (const sh of e.shares) {
-        const mine = Math.round(sh.amount * factor);
-        share += mine;
+  // Sichtbare Ausgaben in Gruppenwaehrung: die Gruppe insgesamt oder der Anteil einer Person.
+  myTotals: groupMemberProcedure
+    .input(z.object({ groupId: z.string(), personId: z.string().optional() }))
+    .query(async ({ ctx, input }) => {
+      const expenses = await ctx.db.expense.findMany({
+        // Private Ausgaben gehoeren nur dem Zahlenden und bleiben fuer alle anderen verborgen.
+        where: { groupId: input.groupId, OR: [{ isPrivate: false }, { paidById: ctx.user.id }] },
+        select: {
+          amount: true,
+          baseCurrencyAmount: true,
+          category: true,
+          paidById: true,
+          shares: { select: { userId: true, amount: true } },
+        },
+      });
+      let paid = 0;
+      let share = 0;
+      let total = 0;
+      let count = 0;
+      const byCategory = new Map<string, number>();
+      for (const e of expenses) {
+        const groupAmount = e.baseCurrencyAmount ?? e.amount;
+        const factor = e.baseCurrencyAmount != null && e.amount > 0 ? e.baseCurrencyAmount / e.amount : 1;
+        const selectedShare = input.personId
+          ? (e.shares.find((candidate) => candidate.userId === input.personId)?.amount ?? 0)
+          : groupAmount;
+        const selectedAmount = input.personId ? Math.round(selectedShare * factor) : groupAmount;
+        const isInvolved = !input.personId || e.paidById === input.personId || selectedShare > 0;
+        if (!isInvolved) continue;
+
+        count += 1;
+        total += selectedAmount;
+        share += selectedAmount;
+        if (!input.personId || e.paidById === input.personId) paid += groupAmount;
         const key = normalizeCategory(e.category?.trim() ?? '');
-        byCategory.set(key, (byCategory.get(key) ?? 0) + mine);
+        byCategory.set(key, (byCategory.get(key) ?? 0) + selectedAmount);
       }
-    }
-    const categories = [...byCategory.entries()]
-      .map(([category, amount]) => ({ category: category || null, amount }))
-      .sort((a, b) => b.amount - a.amount);
-    return { paid, share, total, count: expenses.length, categories };
-  }),
+      const categories = [...byCategory.entries()]
+        .map(([category, amount]) => ({ category: category || null, amount }))
+        .sort((a, b) => b.amount - a.amount);
+      return { paid, share, total, count, categories };
+    }),
 
   // Ortssuche im Trek-Places-Index (Overture): kennt Lokale, die OpenStreetMap nicht hat. Der Browser
   // fragt nur den eigenen Server, der Index sieht Suchtext und die ungefaehre Position.

@@ -80,3 +80,55 @@ test('existing Food and Essen totals merge without any database write or monetar
   expect(db.expense.update).not.toHaveBeenCalled();
   expect(db.expense.updateMany).not.toHaveBeenCalled();
 });
+
+test('totals distinguish a person’s share from all visible group expenses', async () => {
+  const db = {
+    user: { findUnique: vi.fn(async () => ({ suspendedAt: null })) },
+    groupMember: { findUnique: vi.fn(async () => ({ role: 'MEMBER' })) },
+    expense: {
+      findMany: vi.fn(async () => [
+        {
+          category: 'Food',
+          amount: 1000,
+          baseCurrencyAmount: null,
+          paidById: 'alice',
+          shares: [
+            { userId: 'alice', amount: 400 },
+            { userId: 'bob', amount: 600 },
+          ],
+        },
+        {
+          category: 'Accommodation',
+          amount: 500,
+          baseCurrencyAmount: null,
+          paidById: 'bob',
+          shares: [{ userId: 'bob', amount: 500 }],
+        },
+      ]),
+    },
+  };
+  const caller = expensesRouter.createCaller({
+    db,
+    session: { user: { id: 'alice' } },
+    headers: new Headers(),
+    impersonating: null,
+  } as unknown as TRPCContext);
+
+  await expect(caller.myTotals({ groupId: 'group', personId: 'alice' })).resolves.toMatchObject({
+    paid: 1000,
+    share: 400,
+    total: 400,
+    count: 1,
+    categories: [{ category: 'food', amount: 400 }],
+  });
+  await expect(caller.myTotals({ groupId: 'group' })).resolves.toMatchObject({
+    paid: 1500,
+    share: 1500,
+    total: 1500,
+    count: 2,
+    categories: [
+      { category: 'food', amount: 1000 },
+      { category: 'accommodation', amount: 500 },
+    ],
+  });
+});

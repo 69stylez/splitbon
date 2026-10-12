@@ -1,11 +1,8 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Link } from '@/i18n/navigation';
-import { BarChart3 } from 'lucide-react';
 import { formatCents } from '@/lib/money';
 import { categoryIcon, categoryLabel } from '@/lib/categories';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BudgetBar } from '@/components/groups/stats-extras';
 import { CHART_COLORS } from '@/components/groups/stats-charts';
 
@@ -16,21 +13,25 @@ type Totals = {
   categories: { category: string | null; amount: number }[];
 };
 
-/** Compact spending overview on the group page: total, personal context, categories and budget. */
+/** Spending summary inside the group expenses card. */
 export function MySpendingCard({
-  groupId,
   totals,
   budget,
   people,
   currency,
   locale,
+  paidBy,
+  scopeLabel,
+  all,
 }: {
-  groupId: string;
   totals: Totals;
   budget: number | null;
   people: number;
   currency: string;
   locale: string;
+  paidBy: string | undefined;
+  scopeLabel: string;
+  all: boolean;
 }) {
   const t = useTranslations('groups');
   const tExp = useTranslations('expenses');
@@ -49,65 +50,55 @@ export function MySpendingCard({
   ];
 
   return (
-    <Card>
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-base">{t('detail.myTitle')}</CardTitle>
-          <Link
-            href={`/groups/${groupId}/stats`}
-            className="flex items-center gap-1 text-xs text-primary hover:underline"
-          >
-            <BarChart3 className="h-3.5 w-3.5" />
-            {t('detail.stats')}
-          </Link>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <p className="text-sm text-muted-foreground">
-          <span className="text-xl font-bold text-foreground tabular-nums">{money(totals.total)}</span>{' '}
-          {t('detail.totalSpent').toLocaleLowerCase(locale)}
-          <span className="mx-2">·</span>
-          {t('detail.myPaid')} <span className="font-medium text-foreground tabular-nums">{money(totals.paid)}</span>
-        </p>
+    <div className="space-y-4">
+      <p className="text-sm text-muted-foreground">
+        <span className="text-xl font-bold text-foreground tabular-nums">{money(totals.total)}</span> {scopeLabel}
+        {paidBy && (
+          <>
+            <span className="mx-2">·</span>
+            {t('detail.paidShort', { name: paidBy })}{' '}
+            <span className="font-medium text-foreground tabular-nums">{money(totals.paid)}</span>
+          </>
+        )}
+      </p>
 
-        {slices.length > 0 && totals.share > 0 && (
-          <div className="space-y-2">
-            <div className="flex h-3 overflow-hidden rounded-full bg-muted">
-              {slices.map((s, i) => (
-                <div
-                  key={s.label}
-                  title={`${s.label}: ${money(s.value)}`}
-                  style={{
-                    width: `${(s.value / totals.share) * 100}%`,
-                    backgroundColor: CHART_COLORS[i % CHART_COLORS.length],
-                  }}
-                />
-              ))}
-            </div>
-            <ul className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-              {slices.map((s, i) => (
-                <li key={s.label} className="flex items-center gap-1.5">
-                  <span
-                    className="h-2.5 w-2.5 rounded-sm"
-                    style={{ backgroundColor: CHART_COLORS[i % CHART_COLORS.length] }}
-                  />
-                  {s.icon} {s.label} <span className="tabular-nums">{money(s.value)}</span>
-                </li>
-              ))}
-            </ul>
+      {slices.length > 0 && totals.share > 0 && (
+        <div className="space-y-2">
+          <div className="flex h-3 overflow-hidden rounded-full bg-muted">
+            {slices.map((s, i) => (
+              <div
+                key={s.label}
+                title={`${s.label}: ${money(s.value)}`}
+                style={{
+                  width: `${(s.value / totals.share) * 100}%`,
+                  backgroundColor: CHART_COLORS[i % CHART_COLORS.length],
+                }}
+              />
+            ))}
           </div>
-        )}
+          <ul className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+            {slices.map((s, i) => (
+              <li key={s.label} className="flex items-center gap-1.5">
+                <span
+                  className="h-2.5 w-2.5 rounded-sm"
+                  style={{ backgroundColor: CHART_COLORS[i % CHART_COLORS.length] }}
+                />
+                {s.icon} {s.label} <span className="tabular-nums">{money(s.value)}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
-        {budget !== null && budget > 0 && (
-          <BudgetBar
-            budget={Math.round(budget / Math.max(1, people))}
-            spent={totals.share}
-            forecast={totals.share}
-            currency={currency}
-            locale={locale}
-          />
-        )}
-      </CardContent>
-    </Card>
+      {budget !== null && budget > 0 && (
+        <BudgetBar
+          budget={all ? budget : Math.round(budget / Math.max(1, people))}
+          spent={totals.share}
+          forecast={totals.share}
+          currency={currency}
+          locale={locale}
+        />
+      )}
+    </div>
   );
 }

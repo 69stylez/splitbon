@@ -62,9 +62,12 @@ export default function GroupDetailPage({ params }: { params: Promise<{ groupId:
   // Starts on the signed-in person; 'Alle' ('') is a choice
   const [chosenFilter, setPersonFilter] = useState<string | null>(null);
   const personFilter = chosenFilter ?? myId ?? '';
-  // Newest first, grouped by day; the person filter keeps what someone paid for or shares in
+  // Newest first, grouped by day; a private expense remains hidden from everyone but its payer.
   const days = useMemo(() => {
-    const list = (expenses.data?.expenses ?? []).filter((e) => !personFilter || involves(e, personFilter));
+    const list = (expenses.data?.expenses ?? []).filter(
+      (expense) =>
+        (!expense.isPrivate || expense.paidById === myId) && (!personFilter || involves(expense, personFilter)),
+    );
     const out: { key: string; date: Date; items: typeof list }[] = [];
     for (const e of list) {
       const date = new Date(e.expenseDate);
@@ -74,8 +77,11 @@ export default function GroupDetailPage({ params }: { params: Promise<{ groupId:
       else out.push({ key, date, items: [e] });
     }
     return out;
-  }, [expenses.data, personFilter]);
-  const myTotals = trpc.expenses.myTotals.useQuery({ groupId });
+  }, [expenses.data, myId, personFilter]);
+  const myTotals = trpc.expenses.myTotals.useQuery({
+    groupId,
+    ...(personFilter ? { personId: personFilter } : {}),
+  });
   const debts = trpc.balances.getSimplifiedDebts.useQuery({ groupId });
   const pendingReceipts = trpc.receipts.listPending.useQuery({ groupId });
   const venmoSetting = trpc.admin.getVenmoEnabled.useQuery();
@@ -242,6 +248,15 @@ export default function GroupDetailPage({ params }: { params: Promise<{ groupId:
     );
   }
   const rowMembers = new Map<string, RowMember>(g.members.map((m) => [m.user.id, m.user]));
+  const selectedMember = personFilter ? rowMembers.get(personFilter) : undefined;
+  const selectedMemberName = selectedMember
+    ? (selectedMember.placeholderName ?? selectedMember.name ?? selectedMember.email ?? undefined)
+    : undefined;
+  const spendingScopeLabel = !personFilter
+    ? t('detail.totalSpent').toLocaleLowerCase(locale)
+    : personFilter === myId
+      ? t('detail.myShare').toLocaleLowerCase(locale)
+      : t('detail.onlyFor', { name: selectedMemberName ?? t('detail.unknown') });
 
   return (
     <div className="space-y-6">
@@ -383,18 +398,6 @@ export default function GroupDetailPage({ params }: { params: Promise<{ groupId:
 
       <Separator />
 
-      {/* Meine Ausgaben */}
-      {myTotals.data && myTotals.data.count > 0 && (
-        <MySpendingCard
-          groupId={groupId}
-          totals={myTotals.data}
-          budget={g.budgetTotal}
-          people={g.members.length}
-          currency={g.currency}
-          locale={locale}
-        />
-      )}
-
       {/* Simplified Debts */}
       {debts.data && debts.data.debts.length > 0 && (
         <Card
@@ -502,13 +505,6 @@ export default function GroupDetailPage({ params }: { params: Promise<{ groupId:
 
       {/* Expenses */}
       <div>
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">{t('detail.expenses')}</h2>
-          <Link href={`/groups/${groupId}/expenses`} className="text-sm text-primary hover:underline">
-            {t('detail.allExpenses')}
-          </Link>
-        </div>
-
         {expenses.isLoading && <LoadingSpinner />}
 
         {expenses.data?.expenses.length === 0 && (
@@ -530,40 +526,68 @@ export default function GroupDetailPage({ params }: { params: Promise<{ groupId:
         )}
 
         {expenses.data && expenses.data.expenses.length > 0 && (
-          <div className="space-y-3">
-            <PersonFilter
-              members={g.members.map((m) => ({ ...m.user }))}
-              value={personFilter}
-              onChange={setPersonFilter}
-              myId={myId}
-            />
-            {days.length === 0 && (
-              <Card>
-                <CardContent className="py-6 text-center text-sm text-muted-foreground">
-                  {t('detail.noneForFilter')}
-                </CardContent>
-              </Card>
-            )}
-            {days.map((day) => (
-              <div key={day.key}>
-                <p className="mb-1 px-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  {dayLabel(day.date, locale, t('detail.today'), t('detail.yesterday'))}
-                </p>
-                <Card className="divide-y divide-border overflow-hidden py-0">
-                  {day.items.map((expense) => (
-                    <ExpenseRow
-                      key={expense.id}
-                      expense={expense}
-                      groupId={groupId}
-                      groupCurrency={g.currency}
-                      members={rowMembers}
-                      myId={myId}
-                    />
-                  ))}
-                </Card>
+          <Card>
+            <CardHeader className="space-y-3 pb-3">
+              <div className="flex items-center justify-between gap-3">
+                <CardTitle className="text-lg">{t('detail.expenses')}</CardTitle>
+                <Link href={`/groups/${groupId}/stats`} className="text-sm text-primary hover:underline">
+                  {t('detail.stats')}
+                </Link>
               </div>
-            ))}
-          </div>
+              <PersonFilter
+                members={g.members.map((m) => ({ ...m.user }))}
+                value={personFilter}
+                onChange={setPersonFilter}
+                myId={myId}
+              />
+            </CardHeader>
+            <CardContent className="space-y-5">
+              {myTotals.data && (
+                <MySpendingCard
+                  totals={myTotals.data}
+                  budget={g.budgetTotal}
+                  people={g.members.length}
+                  currency={g.currency}
+                  locale={locale}
+                  paidBy={selectedMemberName}
+                  scopeLabel={spendingScopeLabel}
+                  all={!personFilter}
+                />
+              )}
+
+              <Separator />
+
+              {days.length === 0 ? (
+                <div className="py-3 text-center text-sm text-muted-foreground">{t('detail.noneForFilter')}</div>
+              ) : (
+                <div className="space-y-3">
+                  {days.map((day) => (
+                    <div key={day.key}>
+                      <p className="mb-1 px-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                        {dayLabel(day.date, locale, t('detail.today'), t('detail.yesterday'))}
+                      </p>
+                      <Card className="divide-y divide-border overflow-hidden py-0">
+                        {day.items.map((expense) => (
+                          <ExpenseRow
+                            key={expense.id}
+                            expense={expense}
+                            groupId={groupId}
+                            groupCurrency={g.currency}
+                            members={rowMembers}
+                            myId={myId}
+                          />
+                        ))}
+                      </Card>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <Link href={`/groups/${groupId}/expenses`} className="block text-sm text-primary hover:underline">
+                {t('detail.allExpenses')}
+              </Link>
+            </CardContent>
+          </Card>
         )}
       </div>
 
