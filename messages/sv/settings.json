@@ -23,12 +23,12 @@
     "success": "Lösenord ändrat!"
   },
   "avatar": {
-    "upload": "Upload photo",
-    "reset": "Remove",
-    "saved": "Avatar updated",
-    "failed": "Could not save the avatar",
-    "color": "Colour",
-    "emojiHint": "Or pick an emoji and a colour:"
+    "upload": "Ladda upp foto",
+    "reset": "Ta bort",
+    "saved": "Avatar uppdaterad",
+    "failed": "Det gick inte att spara avataren",
+    "color": "Färg",
+    "emojiHint": "Eller välj en emoji och en färg:"
   },
   "payments": {
     "title": "Betalningsuppgifter",

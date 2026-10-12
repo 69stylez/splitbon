@@ -23,12 +23,12 @@
     "success": "Senha alterada!"
   },
   "avatar": {
-    "upload": "Upload photo",
-    "reset": "Remove",
-    "saved": "Avatar updated",
-    "failed": "Could not save the avatar",
-    "color": "Colour",
-    "emojiHint": "Or pick an emoji and a colour:"
+    "upload": "Carregar foto",
+    "reset": "Remover",
+    "saved": "Avatar atualizado",
+    "failed": "Não foi possível salvar o avatar",
+    "color": "Cor",
+    "emojiHint": "Ou escolha um emoji e uma cor:"
   },
   "payments": {
     "title": "Dados de pagamento",

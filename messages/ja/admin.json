@@ -5,22 +5,22 @@
     "database": "データベース",
     "version": "バージョン",
     "uptime": "稼働時間",
-    "started": "{time}に起動"
+    "started": " {time}に起動"
   },
   "storage": {
     "title": "ストレージ統計",
     "receipts": "レシート",
     "inDatabase": "データベース内",
     "diskUsage": "ディスク使用量",
-    "filesOnDisk": "ディスク上に{count}ファイル",
+    "filesOnDisk": "ディスク上に{count} ファイル",
     "orphanedFiles": "孤立ファイル",
     "orphanDescription": "データベース内のどのレシートにも参照されていないディスク上のファイル",
     "cleanUp": "クリーンアップ",
-    "cleanedUp": "{count}ファイルをクリーンアップしました（{size}を解放）"
+    "cleanedUp": " {count} ファイルをクリーンアップしました（{size} を解放）"
   },
   "users": {
     "title": "ユーザー管理",
-    "count": "{count}人のユーザー",
+    "count": "{count} 人のユーザー",
     "searchPlaceholder": "名前またはメールアドレスで検索...",
     "retry": "再試行",
     "noUsers": "ユーザーが見つかりません。",
@@ -37,23 +37,23 @@
     "statusPlaceholder": "プレースホルダー",
     "statusUser": "ユーザー",
     "statusSuspended": "停止中",
-    "unsuspend": "{name}の停止を解除",
-    "suspend": "{name}を停止",
-    "impersonate": "{name}になりすます",
+    "unsuspend": " {name}の停止を解除",
+    "suspend": " {name}を停止",
+    "impersonate": " {name}になりすます",
     "deleteTitle": "ユーザーを削除",
-    "deleteDescription": "{name}を削除してもよろしいですか？この操作は元に戻せません。すべてのデータが完全に削除されます。",
+    "deleteDescription": " {name}を削除してもよろしいですか？この操作は元に戻せません。すべてのデータが完全に削除されます。",
     "cancel": "キャンセル",
     "delete": "削除",
     "loadMore": "さらに読み込む",
     "errorLoading": "ユーザーの読み込みに失敗しました。",
     "searchAriaLabel": "ユーザーを検索",
-    "deleteUser": "{name}を削除"
+    "deleteUser": " {name}を削除"
   },
   "groups": {
     "title": "グループ概要",
-    "count": "{count}グループ",
-    "expenses": "{count}件の支出",
-    "settlements": "{count}件の精算",
+    "count": "{count} グループ",
+    "expenses": "{count} 件の支出",
+    "settlements": "{count} 件の精算",
     "searchPlaceholder": "グループ名で検索...",
     "filterAll": "すべて",
     "filterActive": "アクティブ",
@@ -69,13 +69,13 @@
     "statusArchived": "アーカイブ済み",
     "statusActive": "アクティブ",
     "deleteTitle": "グループを削除",
-    "deleteDescription": "{name}を削除してもよろしいですか？このグループのすべての支出、精算、活動が完全に削除されます。",
+    "deleteDescription": " {name}を削除してもよろしいですか？このグループのすべての支出、精算、活動が完全に削除されます。",
     "cancel": "キャンセル",
     "delete": "削除",
     "loadMore": "さらに読み込む",
     "errorLoading": "グループの読み込みに失敗しました。",
     "searchAriaLabel": "グループを検索",
-    "deleteGroup": "グループ{name}を削除"
+    "deleteGroup": "グループ {name}を削除"
   },
   "registration": {
     "title": "登録管理",
@@ -95,7 +95,7 @@
     "colStatus": "ステータス",
     "colCreated": "作成日",
     "statusRevoked": "取り消し済み",
-    "statusUsedBy": "{name}が使用",
+    "statusUsedBy": " {name}が使用",
     "statusActive": "有効",
     "statusExpired": "期限切れ"
   },
@@ -140,10 +140,10 @@
     "changeImage": "画像を変更",
     "uploadImage": "レシート画像をアップロード",
     "clearFile": "ファイルをクリア",
-    "testProvider": "{name}をテスト",
+    "testProvider": " {name}をテスト",
     "uploadHint": "テストを有効にするにはレシート画像をアップロードしてください。",
-    "success": "{provider}が{duration}msで応答しました",
-    "failed": "{provider}が失敗しました: {error}"
+    "success": "{provider} が {duration}msで応答しました",
+    "failed": "{provider} が失敗しました: {error}"
   },
   "activity": {
     "title": "グローバル活動フィード",
@@ -164,7 +164,8 @@
     "typeGroupUnarchived": "グループのアーカイブを解除",
     "typePlaceholderCreated": "プレースホルダー追加",
     "typeSettlementCreated": "精算",
-    "typeReceiptItemsChanged": "Receipt lines changed"
+    "typeReceiptItemsChanged": "受信回線が変更されました",
+    "typeSettlementCanceled": "支払いを取り消し"
   },
   "tools": {
     "title": "管理ツール",
@@ -175,31 +176,31 @@
     "exportSuccess": "エクスポートのダウンロードが完了しました。",
     "emailTitle": "メール設定",
     "emailDescription": "SMTP設定を確認するためにテストメールを送信します。",
-    "emailSentTo": "{email}に送信しました",
+    "emailSentTo": " {email}に送信しました",
     "emailButton": "テストメールを送信",
     "cleanupTitle": "ゲスト割り勘のクリーンアップ",
     "cleanupLoading": "読み込み中...",
     "cleanupStats": "ゲスト割り勘{total}件中{expired}件が期限切れです。",
     "cleanupButton": "期限切れを削除",
-    "cleanupSuccess": "期限切れの割り勘を{count}件削除しました",
+    "cleanupSuccess": "期限切れの割り勘を {count} 件削除しました",
     "unknownError": "不明なエラー"
   },
   "authExpiry": {
     "title": "認証アラート",
     "cardTitle": "認証期限切れ通知",
-    "description": "{providers}の認証が期限切れになった際のメール通知の頻度を設定します。",
+    "description": " {providers} の認証が期限切れになった際のメール通知の頻度を設定します。",
     "oncePerIncident": "インシデントごとに1回",
     "everyHour": "1時間ごと",
     "every6Hours": "6時間ごと",
     "every24Hours": "24時間ごと",
     "saving": "保存中...",
-    "claudeOAuth": "Claude OAuth",
+    "claudeOAuth": "クロードOAuth",
     "chatgptOAuth": "ChatGPT OAuth",
     "or": "または"
   },
   "serverLogs": {
     "title": "サーバーログ",
-    "entries": "{count}件のエントリ",
+    "entries": "{count} 件のエントリ",
     "filterPlaceholder": "ログをフィルター...",
     "scrollToBottom": "最下部にスクロール",
     "noEntries": "ログエントリが見つかりません",
@@ -232,7 +233,7 @@
     "actionMeridianLoginFailed": "Meridianログイン失敗",
     "actionMeridianLogout": "Meridianログアウト",
     "actionNotifyPrefChanged": "通知設定変更",
-    "filesDeleted": "{count}ファイル",
+    "filesDeleted": "{count} ファイル",
     "actionAIProviderTest": "AIプロバイダーテスト",
     "actionGuestUploadsChanged": "ゲストアップロード変更",
     "actionExportCreated": "データエクスポート"
@@ -258,7 +259,7 @@
     "changeFile": "変更",
     "uploadFile": "アップロード",
     "test": "テスト",
-    "testSuccess": "{duration}msで応答",
+    "testSuccess": " {duration}msで応答",
     "dismiss": "閉じる",
     "authExpired": "認証が期限切れです",
     "step1Label": "ステップ1:",
@@ -288,7 +289,7 @@
     "changeFile": "変更",
     "uploadFile": "アップロード",
     "test": "テスト",
-    "testSuccess": "{duration}msで応答",
+    "testSuccess": " {duration}msで応答",
     "serviceDegraded": "サービスが劣化しています",
     "step1Label": "ステップ1:",
     "step2Label": "ステップ2:",

@@ -117,7 +117,7 @@
     "personalLinkShared": "Envie este link só para você: qualquer pessoa com ele pode agir como você nesta divisão.",
     "personalLinkOfferTitle": "Este é o link pessoal de {name}",
     "personalLinkOfferBody": "Ao continuar, este dispositivo poderá reivindicar itens e agir como {name}. Continue só se você for {name}.",
-    "personalLinkOfferReplaces": "Este dispositivo entrou nesta divisão como {current}. Ao continuar, ele passa a ser {name}, e só o link pessoal de {current} pode trocar de volta.",
+    "personalLinkOfferReplaces": "Este dispositivo entrou nesta divisão como {current}. Ao continuar, ele passa a ser {name}, e só o link pessoal de {current}pode trocar de volta.",
     "continueAs": "Continuar como {name}",
     "notThisPerson": "Sou outra pessoa",
     "continuingAs": "Continuando como {name}",

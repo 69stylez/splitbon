@@ -1,28 +1,28 @@
 {
-  "title": "Feedback",
-  "intro": "Found a problem or have an idea? Post it here. The admin confirms entries before they are built.",
-  "new": "New entry",
+  "title": "피드백",
+  "intro": "문제를 발견했거나 아이디어가 있습니까? 여기에 게시하세요. 관리자는 항목이 작성되기 전에 항목을 확인합니다.",
+  "new": "신규 항목",
   "kind": {
-    "IDEA": "Idea",
-    "BUG": "Problem"
+    "IDEA": "아이디어",
+    "BUG": "문제"
   },
-  "titleLabel": "Short title",
-  "titlePlaceholder": "e.g. Show the tip on the receipt",
-  "bodyLabel": "Details (optional)",
-  "bodyPlaceholder": "What happened, or what should be better?",
-  "send": "Send",
-  "sent": "Thanks, your entry was posted.",
-  "empty": "No entries yet.",
+  "titleLabel": "짧은 제목",
+  "titlePlaceholder": "예를 들어 영수증에 팁을 보여주세요",
+  "bodyLabel": "세부정보(선택사항)",
+  "bodyPlaceholder": "무슨 일이 일어났나요? 아니면 어떻게 해야 더 나아질까요?",
+  "send": "보내다",
+  "sent": "감사합니다. 귀하의 항목이 게시되었습니다.",
+  "empty": "아직 항목이 없습니다.",
   "status": {
-    "OPEN": "Open",
-    "APPROVED": "Confirmed",
-    "DONE": "Done",
-    "REJECTED": "Rejected"
+    "OPEN": "열려 있는",
+    "APPROVED": "확인됨",
+    "DONE": "완료",
+    "REJECTED": "거부됨"
   },
-  "approve": "Confirm",
-  "markDone": "Mark as done",
-  "reject": "Reject",
-  "remove": "Withdraw",
-  "removeConfirm": "Withdraw this entry?",
+  "approve": "확인하다",
+  "markDone": "완료로 표시",
+  "reject": "거부하다",
+  "remove": "철회하다",
+  "removeConfirm": "이 항목을 철회하시겠습니까?",
   "reportOnGithub": "GitHub에 제보"
 }

@@ -1,28 +1,28 @@
 {
-  "title": "Feedback",
-  "intro": "Found a problem or have an idea? Post it here. The admin confirms entries before they are built.",
-  "new": "New entry",
+  "title": "フィードバック",
+  "intro": "問題が見つかりましたか、それともアイデアがありますか?ここに投稿してください。管理者はエントリを構築する前にエントリを確認します。",
+  "new": "新規エントリー",
   "kind": {
-    "IDEA": "Idea",
-    "BUG": "Problem"
+    "IDEA": "アイデア",
+    "BUG": "問題"
   },
-  "titleLabel": "Short title",
-  "titlePlaceholder": "e.g. Show the tip on the receipt",
-  "bodyLabel": "Details (optional)",
-  "bodyPlaceholder": "What happened, or what should be better?",
-  "send": "Send",
-  "sent": "Thanks, your entry was posted.",
-  "empty": "No entries yet.",
+  "titleLabel": "短いタイトル",
+  "titlePlaceholder": "例えばレシートにチップを見せる",
+  "bodyLabel": "詳細 (オプション)",
+  "bodyPlaceholder": "何が起こったのでしょうか、それとももっと良くなるべきでしょうか?",
+  "send": "送信",
+  "sent": "ありがとうございます。エントリーが投稿されました。",
+  "empty": "まだエントリーはありません。",
   "status": {
-    "OPEN": "Open",
-    "APPROVED": "Confirmed",
-    "DONE": "Done",
-    "REJECTED": "Rejected"
+    "OPEN": "開ける",
+    "APPROVED": "確認済み",
+    "DONE": "終わり",
+    "REJECTED": "拒否されました"
   },
-  "approve": "Confirm",
-  "markDone": "Mark as done",
-  "reject": "Reject",
-  "remove": "Withdraw",
-  "removeConfirm": "Withdraw this entry?",
+  "approve": "確認する",
+  "markDone": "完了としてマークする",
+  "reject": "拒否する",
+  "remove": "撤回する",
+  "removeConfirm": "このエントリーを撤回しますか?",
   "reportOnGithub": "GitHubで報告"
 }

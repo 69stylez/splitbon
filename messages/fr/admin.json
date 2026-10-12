@@ -16,7 +16,7 @@
     "orphanedFiles": "Fichiers orphelins",
     "orphanDescription": "fichiers sur le disque non référencés par aucun reçu dans la base de données",
     "cleanUp": "Nettoyer",
-    "cleanedUp": "{count} fichiers nettoyés ({size} libérés)"
+    "cleanedUp": " {count} fichiers nettoyés ({size} libérés)"
   },
   "users": {
     "title": "Gestion des utilisateurs",
@@ -33,7 +33,7 @@
     "colStatus": "Statut",
     "colGroups": "Groupes",
     "colCreated": "Créé",
-    "colActions": "Actions",
+    "colActions": "Actes",
     "statusPlaceholder": "Espace réservé",
     "statusUser": "Utilisateur",
     "statusSuspended": "Suspendu",
@@ -41,7 +41,7 @@
     "suspend": "Suspendre {name}",
     "impersonate": "Se faire passer pour {name}",
     "deleteTitle": "Supprimer l'utilisateur",
-    "deleteDescription": "Êtes-vous sûr de vouloir supprimer {name} ? Cette action est irréversible. Toutes leurs données seront définitivement supprimées.",
+    "deleteDescription": "Êtes-vous sûr de vouloir supprimer {name}? Cette action est irréversible. Toutes leurs données seront définitivement supprimées.",
     "cancel": "Annuler",
     "delete": "Supprimer",
     "loadMore": "Charger plus",
@@ -69,7 +69,7 @@
     "statusArchived": "Archivé",
     "statusActive": "Actif",
     "deleteTitle": "Supprimer le groupe",
-    "deleteDescription": "Êtes-vous sûr de vouloir supprimer {name} ? Toutes les dépenses, règlements et activités de ce groupe seront définitivement supprimés.",
+    "deleteDescription": "Êtes-vous sûr de vouloir supprimer {name}? Toutes les dépenses, règlements et activités de ce groupe seront définitivement supprimés.",
     "cancel": "Annuler",
     "delete": "Supprimer",
     "loadMore": "Charger plus",
@@ -148,7 +148,7 @@
   "activity": {
     "title": "Flux d'activité global",
     "noActivity": "Aucune activité pour le moment.",
-    "colType": "Type",
+    "colType": "Taper",
     "colUser": "Utilisateur",
     "colGroup": "Groupe",
     "colTime": "Heure",
@@ -164,7 +164,8 @@
     "typeGroupUnarchived": "Groupe désarchivé",
     "typePlaceholderCreated": "Espace réservé ajouté",
     "typeSettlementCreated": "Règlement",
-    "typeReceiptItemsChanged": "Receipt lines changed"
+    "typeReceiptItemsChanged": "Lignes de réception modifiées",
+    "typeSettlementCanceled": "Paiement annulé"
   },
   "tools": {
     "title": "Outils d'administration",
@@ -181,7 +182,7 @@
     "cleanupLoading": "Chargement...",
     "cleanupStats": "{expired} expirés sur {total} partages invités au total.",
     "cleanupButton": "Purger les expirés",
-    "cleanupSuccess": "{count} partages expirés supprimés",
+    "cleanupSuccess": " {count} partages expirés supprimés",
     "unknownError": "Erreur inconnue"
   },
   "authExpiry": {

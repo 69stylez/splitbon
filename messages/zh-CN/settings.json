@@ -23,12 +23,12 @@
     "success": "密码已修改!"
   },
   "avatar": {
-    "upload": "Upload photo",
-    "reset": "Remove",
-    "saved": "Avatar updated",
-    "failed": "Could not save the avatar",
-    "color": "Colour",
-    "emojiHint": "Or pick an emoji and a colour:"
+    "upload": "上传照片",
+    "reset": "消除",
+    "saved": "头像已更新",
+    "failed": "无法保存头像",
+    "color": "颜色",
+    "emojiHint": "或者选择表情符号和颜色："
   },
   "payments": {
     "title": "收款信息",

@@ -1,28 +1,28 @@
 {
-  "title": "Feedback",
-  "intro": "Found a problem or have an idea? Post it here. The admin confirms entries before they are built.",
-  "new": "New entry",
+  "title": "反馈",
+  "intro": "发现问题或有想法？发布在这里。管理员在构建条目之前确认条目。",
+  "new": "新条目",
   "kind": {
-    "IDEA": "Idea",
-    "BUG": "Problem"
+    "IDEA": "主意",
+    "BUG": "问题"
   },
-  "titleLabel": "Short title",
-  "titlePlaceholder": "e.g. Show the tip on the receipt",
-  "bodyLabel": "Details (optional)",
-  "bodyPlaceholder": "What happened, or what should be better?",
-  "send": "Send",
-  "sent": "Thanks, your entry was posted.",
-  "empty": "No entries yet.",
+  "titleLabel": "短标题",
+  "titlePlaceholder": "例如显示收据上的小费",
+  "bodyLabel": "详细信息（可选）",
+  "bodyPlaceholder": "发生了什么，或者应该做些什么更好？",
+  "send": "发送",
+  "sent": "谢谢，您的条目已发布。",
+  "empty": "还没有条目。",
   "status": {
-    "OPEN": "Open",
-    "APPROVED": "Confirmed",
-    "DONE": "Done",
-    "REJECTED": "Rejected"
+    "OPEN": "打开",
+    "APPROVED": "确认的",
+    "DONE": "完毕",
+    "REJECTED": "被拒绝"
   },
-  "approve": "Confirm",
-  "markDone": "Mark as done",
-  "reject": "Reject",
-  "remove": "Withdraw",
-  "removeConfirm": "Withdraw this entry?",
+  "approve": "确认",
+  "markDone": "标记为已完成",
+  "reject": "拒绝",
+  "remove": "提取",
+  "removeConfirm": "撤回此条目？",
   "reportOnGithub": "在 GitHub 上反馈"
 }

@@ -16,7 +16,7 @@
     "orphanedFiles": "Arquivos órfãos",
     "orphanDescription": "arquivos no disco não referenciados por nenhum recibo no banco de dados",
     "cleanUp": "Limpar",
-    "cleanedUp": "{count} arquivos limpos ({size} liberados)"
+    "cleanedUp": " {count} arquivos limpos ({size} liberados)"
   },
   "users": {
     "title": "Gerenciamento de usuários",
@@ -164,7 +164,8 @@
     "typeGroupUnarchived": "Grupo desarquivado",
     "typePlaceholderCreated": "Marcador adicionado",
     "typeSettlementCreated": "Acerto",
-    "typeReceiptItemsChanged": "Receipt lines changed"
+    "typeReceiptItemsChanged": "Linhas de recebimento alteradas",
+    "typeSettlementCanceled": "Pagamento cancelado"
   },
   "tools": {
     "title": "Ferramentas administrativas",
@@ -181,7 +182,7 @@
     "cleanupLoading": "Carregando...",
     "cleanupStats": "{expired} expirados de {total} divisões de convidados no total.",
     "cleanupButton": "Purgar expirados",
-    "cleanupSuccess": "{count} divisões expiradas excluídas",
+    "cleanupSuccess": " {count} divisões expiradas excluídas",
     "unknownError": "Erro desconhecido"
   },
   "authExpiry": {

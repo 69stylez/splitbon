@@ -1,28 +1,28 @@
 {
-  "title": "Feedback",
-  "intro": "Found a problem or have an idea? Post it here. The admin confirms entries before they are built.",
-  "new": "New entry",
+  "title": "Comentario",
+  "intro": "¿Encontró un problema o tiene una idea? Publíquelo aquí. El administrador confirma las entradas antes de crearlas.",
+  "new": "Nueva entrada",
   "kind": {
     "IDEA": "Idea",
-    "BUG": "Problem"
+    "BUG": "Problema"
   },
-  "titleLabel": "Short title",
-  "titlePlaceholder": "e.g. Show the tip on the receipt",
-  "bodyLabel": "Details (optional)",
-  "bodyPlaceholder": "What happened, or what should be better?",
-  "send": "Send",
-  "sent": "Thanks, your entry was posted.",
-  "empty": "No entries yet.",
+  "titleLabel": "título corto",
+  "titlePlaceholder": "p.ej. Mostrar la propina en el recibo.",
+  "bodyLabel": "Detalles (opcional)",
+  "bodyPlaceholder": "¿Qué pasó o qué debería ser mejor?",
+  "send": "Enviar",
+  "sent": "Gracias, tu entrada fue publicada.",
+  "empty": "Aún no hay entradas.",
   "status": {
-    "OPEN": "Open",
-    "APPROVED": "Confirmed",
-    "DONE": "Done",
-    "REJECTED": "Rejected"
+    "OPEN": "Abierto",
+    "APPROVED": "Confirmado",
+    "DONE": "Hecho",
+    "REJECTED": "Rechazado"
   },
-  "approve": "Confirm",
-  "markDone": "Mark as done",
-  "reject": "Reject",
-  "remove": "Withdraw",
-  "removeConfirm": "Withdraw this entry?",
+  "approve": "Confirmar",
+  "markDone": "Marcar como hecho",
+  "reject": "Rechazar",
+  "remove": "Retirar",
+  "removeConfirm": "¿Retirar esta entrada?",
   "reportOnGithub": "Informar en GitHub"
 }

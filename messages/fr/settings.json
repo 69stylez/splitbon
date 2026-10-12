@@ -23,12 +23,12 @@
     "success": "Mot de passe modifié !"
   },
   "avatar": {
-    "upload": "Upload photo",
-    "reset": "Remove",
-    "saved": "Avatar updated",
-    "failed": "Could not save the avatar",
-    "color": "Colour",
-    "emojiHint": "Or pick an emoji and a colour:"
+    "upload": "Télécharger une photo",
+    "reset": "Retirer",
+    "saved": "Avatar mis à jour",
+    "failed": "Impossible d'enregistrer l'avatar",
+    "color": "Couleur",
+    "emojiHint": "Ou choisissez un emoji et une couleur :"
   },
   "payments": {
     "title": "Coordonnées de paiement",

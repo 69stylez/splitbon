@@ -23,12 +23,12 @@
     "success": "パスワードを変更しました!"
   },
   "avatar": {
-    "upload": "Upload photo",
-    "reset": "Remove",
-    "saved": "Avatar updated",
-    "failed": "Could not save the avatar",
-    "color": "Colour",
-    "emojiHint": "Or pick an emoji and a colour:"
+    "upload": "写真をアップロードする",
+    "reset": "取り除く",
+    "saved": "アバターが更新されました",
+    "failed": "アバターを保存できませんでした",
+    "color": "色",
+    "emojiHint": "または、絵文字と色を選択します。"
   },
   "payments": {
     "title": "支払い情報",

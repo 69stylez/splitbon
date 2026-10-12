@@ -5,22 +5,22 @@
     "database": "데이터베이스",
     "version": "버전",
     "uptime": "가동 시간",
-    "started": "{time}에 시작됨"
+    "started": " {time}에 시작됨"
   },
   "storage": {
     "title": "저장소 통계",
     "receipts": "영수증",
     "inDatabase": "데이터베이스 내",
     "diskUsage": "디스크 사용량",
-    "filesOnDisk": "디스크에 {count}개 파일",
+    "filesOnDisk": "디스크에{count} 개 파일",
     "orphanedFiles": "고아 파일",
     "orphanDescription": "데이터베이스의 어떤 영수증에도 참조되지 않는 디스크 파일",
     "cleanUp": "정리",
-    "cleanedUp": "{count}개 파일 정리 완료 ({size} 확보)"
+    "cleanedUp": " {count} 개 파일 정리 완료 ({size} 확보)"
   },
   "users": {
     "title": "사용자 관리",
-    "count": "{count}명의 사용자",
+    "count": "{count} 명의 사용자",
     "searchPlaceholder": "이름 또는 이메일로 검색...",
     "retry": "다시 시도",
     "noUsers": "사용자를 찾을 수 없습니다.",
@@ -37,23 +37,23 @@
     "statusPlaceholder": "임시 사용자",
     "statusUser": "사용자",
     "statusSuspended": "정지됨",
-    "unsuspend": "{name} 정지 해제",
-    "suspend": "{name} 정지",
-    "impersonate": "{name}으로 가장",
+    "unsuspend": " {name}정지 해제",
+    "suspend": " {name}정지",
+    "impersonate": " {name}으로 가장",
     "deleteTitle": "사용자 삭제",
-    "deleteDescription": "{name}을(를) 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다. 모든 데이터가 영구적으로 삭제됩니다.",
+    "deleteDescription": " {name}을(를) 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다. 모든 데이터가 영구적으로 삭제됩니다.",
     "cancel": "취소",
     "delete": "삭제",
     "loadMore": "더 보기",
     "errorLoading": "사용자를 불러오지 못했습니다.",
     "searchAriaLabel": "사용자 검색",
-    "deleteUser": "{name} 삭제"
+    "deleteUser": " {name}삭제"
   },
   "groups": {
     "title": "그룹 개요",
-    "count": "{count}개 그룹",
-    "expenses": "{count}건의 지출",
-    "settlements": "{count}건의 정산",
+    "count": "{count} 개 그룹",
+    "expenses": "{count} 건의 지출",
+    "settlements": "{count} 건의 정산",
     "searchPlaceholder": "그룹 이름으로 검색...",
     "filterAll": "전체",
     "filterActive": "활성",
@@ -69,13 +69,13 @@
     "statusArchived": "보관됨",
     "statusActive": "활성",
     "deleteTitle": "그룹 삭제",
-    "deleteDescription": "{name}을(를) 삭제하시겠습니까? 이 그룹의 모든 지출, 정산 및 활동 기록이 영구적으로 삭제됩니다.",
+    "deleteDescription": " {name}을(를) 삭제하시겠습니까? 이 그룹의 모든 지출, 정산 및 활동 기록이 영구적으로 삭제됩니다.",
     "cancel": "취소",
     "delete": "삭제",
     "loadMore": "더 보기",
     "errorLoading": "그룹을 불러오지 못했습니다.",
     "searchAriaLabel": "그룹 검색",
-    "deleteGroup": "그룹 {name} 삭제"
+    "deleteGroup": "그룹 {name}삭제"
   },
   "registration": {
     "title": "가입 관리",
@@ -95,7 +95,7 @@
     "colStatus": "상태",
     "colCreated": "생성일",
     "statusRevoked": "취소됨",
-    "statusUsedBy": "{name}이(가) 사용함",
+    "statusUsedBy": " {name}이(가) 사용함",
     "statusActive": "활성",
     "statusExpired": "만료됨"
   },
@@ -140,9 +140,9 @@
     "changeImage": "이미지 변경",
     "uploadImage": "영수증 이미지 업로드",
     "clearFile": "파일 지우기",
-    "testProvider": "{name} 테스트",
+    "testProvider": " {name}테스트",
     "uploadHint": "테스트를 활성화하려면 영수증 이미지를 업로드하세요.",
-    "success": "{provider}이(가) {duration}ms 만에 응답했습니다",
+    "success": "{provider} 이(가) {duration}ms 만에 응답했습니다",
     "failed": "{provider} 실패: {error}"
   },
   "activity": {
@@ -164,7 +164,8 @@
     "typeGroupUnarchived": "그룹 보관 해제",
     "typePlaceholderCreated": "임시 멤버 추가",
     "typeSettlementCreated": "정산",
-    "typeReceiptItemsChanged": "Receipt lines changed"
+    "typeReceiptItemsChanged": "영수증 라인이 변경되었습니다.",
+    "typeSettlementCanceled": "결제 취소됨"
   },
   "tools": {
     "title": "관리 도구",
@@ -175,31 +176,31 @@
     "exportSuccess": "내보내기 다운로드 완료.",
     "emailTitle": "이메일 설정",
     "emailDescription": "SMTP 설정을 확인하기 위해 테스트 이메일을 전송합니다.",
-    "emailSentTo": "{email}(으)로 전송됨",
+    "emailSentTo": " {email}(으)로 전송됨",
     "emailButton": "테스트 이메일 전송",
     "cleanupTitle": "게스트 정산 정리",
     "cleanupLoading": "로딩 중...",
     "cleanupStats": "전체 {total}개 게스트 정산 중 {expired}개 만료됨.",
     "cleanupButton": "만료된 항목 삭제",
-    "cleanupSuccess": "만료된 정산 {count}개 삭제 완료",
+    "cleanupSuccess": "만료된 정산 {count} 개 삭제 완료",
     "unknownError": "알 수 없는 오류"
   },
   "authExpiry": {
     "title": "인증 알림",
     "cardTitle": "인증 만료 알림",
-    "description": "{providers} 인증이 만료될 때 이메일 알림을 받을 빈도를 설정합니다.",
+    "description": " {providers} 인증이 만료될 때 이메일 알림을 받을 빈도를 설정합니다.",
     "oncePerIncident": "사건당 1회",
     "everyHour": "매시간",
     "every6Hours": "6시간마다",
     "every24Hours": "24시간마다",
     "saving": "저장 중...",
-    "claudeOAuth": "Claude OAuth",
-    "chatgptOAuth": "ChatGPT OAuth",
+    "claudeOAuth": "클로드 OAuth",
+    "chatgptOAuth": "채팅GPT OAuth",
     "or": "또는"
   },
   "serverLogs": {
     "title": "서버 로그",
-    "entries": "{count}개 항목",
+    "entries": "{count} 개 항목",
     "filterPlaceholder": "로그 필터링...",
     "scrollToBottom": "맨 아래로 스크롤",
     "noEntries": "로그 항목이 없습니다",
@@ -232,7 +233,7 @@
     "actionMeridianLoginFailed": "Meridian 로그인 실패",
     "actionMeridianLogout": "Meridian 로그아웃",
     "actionNotifyPrefChanged": "알림 설정 변경",
-    "filesDeleted": "{count}개 파일",
+    "filesDeleted": "{count} 개 파일",
     "actionAIProviderTest": "AI 제공업체 테스트",
     "actionGuestUploadsChanged": "게스트 업로드 변경",
     "actionExportCreated": "데이터 내보내기"
@@ -258,7 +259,7 @@
     "changeFile": "변경",
     "uploadFile": "업로드",
     "test": "테스트",
-    "testSuccess": "{duration}ms 만에 응답",
+    "testSuccess": " {duration}ms 만에 응답",
     "dismiss": "닫기",
     "authExpired": "인증 만료됨",
     "step1Label": "1단계:",
@@ -267,7 +268,7 @@
     "step2Instruction": "인증 후 <emphasis>브라우저 주소창의 URL</emphasis>을 복사하여 아래에 붙여넣으세요."
   },
   "codexAuth": {
-    "title": "ChatGPT OAuth",
+    "title": "채팅GPT OAuth",
     "cardTitle": "OpenAI Codex 상태",
     "authenticated": "인증됨",
     "authRequired": "인증 필요",
@@ -288,7 +289,7 @@
     "changeFile": "변경",
     "uploadFile": "업로드",
     "test": "테스트",
-    "testSuccess": "{duration}ms 만에 응답",
+    "testSuccess": " {duration}ms 만에 응답",
     "serviceDegraded": "서비스 저하",
     "step1Label": "1단계:",
     "step2Label": "2단계:",

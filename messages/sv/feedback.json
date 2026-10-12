@@ -1,28 +1,28 @@
 {
-  "title": "Feedback",
-  "intro": "Found a problem or have an idea? Post it here. The admin confirms entries before they are built.",
-  "new": "New entry",
+  "title": "Feed-back",
+  "intro": "Hittade ett problem eller har du en idé? Lägg upp det här. Administratören bekräftar poster innan de byggs.",
+  "new": "Nytt inlägg",
   "kind": {
-    "IDEA": "Idea",
+    "IDEA": "Aning",
     "BUG": "Problem"
   },
-  "titleLabel": "Short title",
-  "titlePlaceholder": "e.g. Show the tip on the receipt",
-  "bodyLabel": "Details (optional)",
-  "bodyPlaceholder": "What happened, or what should be better?",
-  "send": "Send",
-  "sent": "Thanks, your entry was posted.",
-  "empty": "No entries yet.",
+  "titleLabel": "Kort titel",
+  "titlePlaceholder": "till exempel Visa tipset på kvittot",
+  "bodyLabel": "Detaljer (valfritt)",
+  "bodyPlaceholder": "Vad hände, eller vad borde vara bättre?",
+  "send": "Skicka",
+  "sent": "Tack, ditt inlägg postades.",
+  "empty": "Inga inlägg ännu.",
   "status": {
-    "OPEN": "Open",
-    "APPROVED": "Confirmed",
-    "DONE": "Done",
-    "REJECTED": "Rejected"
+    "OPEN": "Öppna",
+    "APPROVED": "Bekräftad",
+    "DONE": "Gjort",
+    "REJECTED": "Avvisad"
   },
-  "approve": "Confirm",
-  "markDone": "Mark as done",
-  "reject": "Reject",
-  "remove": "Withdraw",
-  "removeConfirm": "Withdraw this entry?",
+  "approve": "Bekräfta",
+  "markDone": "Markera som klar",
+  "reject": "Avvisa",
+  "remove": "Dra tillbaka",
+  "removeConfirm": "Vill du ta tillbaka denna post?",
   "reportOnGithub": "Rapportera på GitHub"
 }

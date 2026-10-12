@@ -12,11 +12,11 @@
     "receipts": "收据",
     "inDatabase": "在数据库中",
     "diskUsage": "磁盘使用量",
-    "filesOnDisk": "磁盘上有 {count} 个文件",
+    "filesOnDisk": "磁盘上有{count} 个文件",
     "orphanedFiles": "孤立文件",
     "orphanDescription": "磁盘上未被数据库中任何收据引用的文件",
     "cleanUp": "清理",
-    "cleanedUp": "已清理 {count} 个文件（释放了 {size}）"
+    "cleanedUp": "已清理 {count} 个文件（释放了{size} ）"
   },
   "users": {
     "title": "用户管理",
@@ -41,7 +41,7 @@
     "suspend": "停用 {name}",
     "impersonate": "模拟 {name}",
     "deleteTitle": "删除用户",
-    "deleteDescription": "确定要删除 {name} 吗？此操作不可撤销。该用户的所有数据将被永久删除。",
+    "deleteDescription": "确定要删除 {name}吗？此操作不可撤销。该用户的所有数据将被永久删除。",
     "cancel": "取消",
     "delete": "删除",
     "loadMore": "加载更多",
@@ -69,7 +69,7 @@
     "statusArchived": "已归档",
     "statusActive": "活跃",
     "deleteTitle": "删除群组",
-    "deleteDescription": "确定要删除 {name} 吗？该群组中的所有支出、结算和活动记录将被永久删除。",
+    "deleteDescription": "确定要删除 {name}吗？该群组中的所有支出、结算和活动记录将被永久删除。",
     "cancel": "取消",
     "delete": "删除",
     "loadMore": "加载更多",
@@ -95,7 +95,7 @@
     "colStatus": "状态",
     "colCreated": "创建时间",
     "statusRevoked": "已撤销",
-    "statusUsedBy": "{name} 已使用",
+    "statusUsedBy": " {name}已使用",
     "statusActive": "有效",
     "statusExpired": "已过期"
   },
@@ -143,7 +143,7 @@
     "testProvider": "测试 {name}",
     "uploadHint": "请上传收据图片以启用测试。",
     "success": "{provider} 在 {duration}ms 内响应",
-    "failed": "{provider} 失败：{error}"
+    "failed": "{provider} 失败： {error}"
   },
   "activity": {
     "title": "全局活动动态",
@@ -164,14 +164,15 @@
     "typeGroupUnarchived": "取消群组归档",
     "typePlaceholderCreated": "添加占位成员",
     "typeSettlementCreated": "结算",
-    "typeReceiptItemsChanged": "Receipt lines changed"
+    "typeReceiptItemsChanged": "收据行已更改",
+    "typeSettlementCanceled": "付款已撤销"
   },
   "tools": {
     "title": "管理工具",
     "exportTitle": "数据导出",
     "exportDescription": "下载所有数据的完整 JSON 导出（不含密码）。",
     "exportButton": "导出数据",
-    "exportFailed": "导出失败：{error}",
+    "exportFailed": "导出失败： {error}",
     "exportSuccess": "导出下载成功。",
     "emailTitle": "邮件配置",
     "emailDescription": "发送测试邮件以验证 SMTP 配置。",
@@ -193,8 +194,8 @@
     "every6Hours": "每 6 小时",
     "every24Hours": "每 24 小时",
     "saving": "保存中...",
-    "claudeOAuth": "Claude OAuth",
-    "chatgptOAuth": "ChatGPT OAuth",
+    "claudeOAuth": "克劳德·奥特斯",
+    "chatgptOAuth": "聊天GPT OAuth",
     "or": "或"
   },
   "serverLogs": {
@@ -267,7 +268,7 @@
     "step2Instruction": "授权后，复制<emphasis>浏览器地址栏中的URL</emphasis>并粘贴到下方。"
   },
   "codexAuth": {
-    "title": "ChatGPT OAuth",
+    "title": "聊天GPT OAuth",
     "cardTitle": "OpenAI Codex 状态",
     "authenticated": "已认证",
     "authRequired": "需要认证",

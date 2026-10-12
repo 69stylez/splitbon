@@ -16,7 +16,7 @@
     "orphanedFiles": "Föräldralösa filer",
     "orphanDescription": "filer på disk som inte refereras av något kvitto i databasen",
     "cleanUp": "Rensa",
-    "cleanedUp": "{count} filer rensade ({size} frigjort)"
+    "cleanedUp": " {count} filer rensade ({size} frigjort)"
   },
   "users": {
     "title": "Användarhantering",
@@ -164,7 +164,8 @@
     "typeGroupUnarchived": "Grupp avarkiverad",
     "typePlaceholderCreated": "Platshållare tillagd",
     "typeSettlementCreated": "Avräkning",
-    "typeReceiptItemsChanged": "Receipt lines changed"
+    "typeReceiptItemsChanged": "Kvittorader ändrade",
+    "typeSettlementCanceled": "Betalning makulerad"
   },
   "tools": {
     "title": "Adminverktyg",
@@ -181,13 +182,13 @@
     "cleanupLoading": "Laddar...",
     "cleanupStats": "{expired} utgångna av {total} totala gästdelningar.",
     "cleanupButton": "Rensa utgångna",
-    "cleanupSuccess": "{count} utgångna delningar borttagna",
+    "cleanupSuccess": " {count} utgångna delningar borttagna",
     "unknownError": "Okänt fel"
   },
   "authExpiry": {
     "title": "Autentiseringsvarningar",
     "cardTitle": "Notifieringar vid autentiseringsutgång",
-    "description": "Hur ofta du vill få e-postvarningar när {providers}-autentiseringen löper ut.",
+    "description": "Hur ofta du vill få e-postvarningar när {providers} -autentiseringen löper ut.",
     "oncePerIncident": "En gång per incident",
     "everyHour": "Varje timme",
     "every6Hours": "Var 6:e timme",
@@ -211,7 +212,7 @@
     "title": "Granskningslogg",
     "noEntries": "Inga granskningsloggposter ännu.",
     "colAction": "Åtgärd",
-    "colAdmin": "Admin",
+    "colAdmin": "Administration",
     "colDetails": "Detaljer",
     "colTime": "Tid",
     "loadMore": "Ladda fler",

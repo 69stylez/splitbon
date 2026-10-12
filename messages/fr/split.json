@@ -117,7 +117,7 @@
     "personalLinkShared": "N'envoyez ce lien qu'à vous-même : toute personne qui l'a peut agir en votre nom dans ce partage.",
     "personalLinkOfferTitle": "Ceci est le lien personnel de {name}",
     "personalLinkOfferBody": "En continuant, cet appareil pourra réclamer et agir en tant que {name}. Continuez uniquement si vous êtes {name}.",
-    "personalLinkOfferReplaces": "Cet appareil a rejoint ce partage en tant que {current}. En continuant, il passera à {name}, et seul le lien personnel de {current} permettra de revenir en arrière.",
+    "personalLinkOfferReplaces": "Cet appareil a rejoint ce partage en tant que {current}. En continuant, il passera à {name}, et seul le lien personnel de {current}permettra de revenir en arrière.",
     "continueAs": "Continuer en tant que {name}",
     "notThisPerson": "Je suis quelqu’un d’autre",
     "continuingAs": "Vous continuez en tant que {name}",

@@ -23,12 +23,12 @@
     "success": "¡Contraseña cambiada!"
   },
   "avatar": {
-    "upload": "Upload photo",
-    "reset": "Remove",
-    "saved": "Avatar updated",
-    "failed": "Could not save the avatar",
-    "color": "Colour",
-    "emojiHint": "Or pick an emoji and a colour:"
+    "upload": "Subir foto",
+    "reset": "Eliminar",
+    "saved": "Avatar actualizado",
+    "failed": "No se pudo guardar el avatar",
+    "color": "Color",
+    "emojiHint": "O elige un emoji y un color:"
   },
   "payments": {
     "title": "Datos de pago",
