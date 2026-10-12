@@ -6,7 +6,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { ArrowLeft } from 'lucide-react';
 import { trpc } from '@/lib/trpc';
 import { formatCents } from '@/lib/money';
-import { categoryIcon } from '@/lib/categories';
+import { categoryIcon, categoryLabel, normalizeCategory } from '@/lib/categories';
 import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -22,6 +22,7 @@ export default function AllExpensesPage({ params }: { params: Promise<{ groupId:
   const { groupId } = use(params);
   const locale = useLocale();
   const t = useTranslations('groups');
+  const tExp = useTranslations('expenses');
   const { data: authSession } = useSession();
   const myId = authSession?.user?.id;
 
@@ -38,7 +39,10 @@ export default function AllExpensesPage({ params }: { params: Promise<{ groupId:
 
   const all = useMemo(() => expenses.data?.expenses ?? [], [expenses.data]);
   const categories = useMemo(
-    () => [...new Set(all.map((e) => e.category).filter((c): c is string => !!c))].sort((a, b) => a.localeCompare(b)),
+    () =>
+      [
+        ...new Set(all.map((e) => (e.category ? normalizeCategory(e.category) : null)).filter((c): c is string => !!c)),
+      ].sort((a, b) => a.localeCompare(b)),
     [all],
   );
 
@@ -50,17 +54,25 @@ export default function AllExpensesPage({ params }: { params: Promise<{ groupId:
       // Others' private expenses have nothing to match on, so they only show while no filter is active
       if (isHiddenFor(e, myId)) return !(q || category || person || from || to);
       if (person && !involves(e, person)) return false;
-      if (category && e.category !== category) return false;
+      if (category && normalizeCategory(e.category ?? '') !== category) return false;
       const day = new Date(e.expenseDate).toLocaleDateString('sv-SE');
       if (from && day < from) return false;
       if (to && day > to) return false;
       if (q) {
-        const hay = [e.title, e.description ?? '', e.category ?? '', e.placeName ?? ''].join(' ').toLowerCase();
+        const hay = [
+          e.title,
+          e.description ?? '',
+          e.category ? categoryLabel(e.category, tExp.raw('new.categoryPresets') as string[]) : '',
+          e.category ?? '',
+          e.placeName ?? '',
+        ]
+          .join(' ')
+          .toLowerCase();
         if (!hay.includes(q)) return false;
       }
       return true;
     });
-  }, [all, query, person, category, from, to, myId]);
+  }, [all, query, person, category, from, to, myId, tExp]);
 
   if (group.isLoading || expenses.isLoading) return <LoadingSpinner />;
   if (!group.data) return null;
@@ -109,7 +121,7 @@ export default function AllExpensesPage({ params }: { params: Promise<{ groupId:
             <option value="">{t('expList.allCategories')}</option>
             {categories.map((c) => (
               <option key={c} value={c}>
-                {categoryIcon(c)} {c}
+                {categoryIcon(c)} {categoryLabel(c, tExp.raw('new.categoryPresets') as string[])}
               </option>
             ))}
           </select>

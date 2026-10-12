@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
+import { normalizeCategory } from '@/lib/categories';
 import { createTRPCRouter, groupMemberProcedure, protectedProcedure } from '../init';
 import { SplitMode, type Prisma } from '@/generated/prisma/client';
 import { getExchangeRate, convertCents } from '../../lib/exchange-rates';
@@ -128,7 +129,7 @@ export const expensesRouter = createTRPCRouter({
       for (const sh of e.shares) {
         const mine = Math.round(sh.amount * factor);
         share += mine;
-        const key = e.category?.trim() ?? '';
+        const key = normalizeCategory(e.category?.trim() ?? '');
         byCategory.set(key, (byCategory.get(key) ?? 0) + mine);
       }
     }
@@ -387,7 +388,7 @@ export const expensesRouter = createTRPCRouter({
             currency: input.currency,
             exchangeRate: exchangeRate ?? 1.0,
             baseCurrencyAmount,
-            ...(input.category !== undefined ? { category: input.category } : {}),
+            ...(input.category !== undefined ? { category: normalizeCategory(input.category) } : {}),
             ...(input.placeName ? { placeName: input.placeName } : {}),
             ...(input.isPrivate ? { isPrivate: true } : {}),
             ...(input.latitude !== undefined && input.longitude !== undefined
@@ -522,6 +523,7 @@ export const expensesRouter = createTRPCRouter({
       }
 
       const { groupId, expenseId, shares, currency: inputCurrency, exchangeRate: inputExchangeRate, ...data } = input;
+      if (data.category !== undefined) data.category = normalizeCategory(data.category);
 
       if (shares) {
         // Validate all share userIds are group members

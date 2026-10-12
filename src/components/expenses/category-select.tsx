@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { categoryIcon } from '@/lib/categories';
+import { CATEGORY_KEYS, categoryIcon, normalizeCategory } from '@/lib/categories';
 import { Input } from '@/components/ui/input';
 
 const SELECT_CLASS =
@@ -12,8 +12,9 @@ const CUSTOM = '__custom__';
 export function CategorySelect({ value, onChange }: { value: string; onChange: (value: string) => void }) {
   const t = useTranslations('expenses');
   const presets = t.raw('new.categoryPresets') as string[];
-  const isPreset = value === '' || presets.includes(value);
-  const selectValue = isPreset ? value : CUSTOM;
+  const canonical = normalizeCategory(value);
+  const isPreset = value === '' || CATEGORY_KEYS.includes(canonical as (typeof CATEGORY_KEYS)[number]);
+  const selectValue = isPreset ? canonical : CUSTOM;
 
   return (
     <div className="space-y-2">
@@ -24,9 +25,9 @@ export function CategorySelect({ value, onChange }: { value: string; onChange: (
         className={SELECT_CLASS}
       >
         <option value="">{t('new.categoryNone')}</option>
-        {presets.map((p) => (
-          <option key={p} value={p}>
-            {categoryIcon(p)} {p}
+        {CATEGORY_KEYS.map((key, index) => (
+          <option key={key} value={key}>
+            {categoryIcon(key)} {presets[index] ?? key}
           </option>
         ))}
         <option value={CUSTOM}>{t('new.categoryCustom')}</option>

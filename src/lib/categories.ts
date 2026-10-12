@@ -1,3 +1,30 @@
+export const CATEGORY_KEYS = [
+  'food',
+  'drinks',
+  'accommodation',
+  'transport',
+  'activities',
+  'shopping',
+  'other',
+] as const;
+
+/** Canonicalize known presets only; preserve user-defined category text. */
+export function normalizeCategory(category: string): string {
+  const key = category.trim().toLowerCase();
+  return Object.hasOwn(ALIASES, key)
+    ? ALIASES[key]!
+    : CATEGORY_KEYS.includes(key as (typeof CATEGORY_KEYS)[number])
+      ? key
+      : category;
+}
+
+/** Translate preset IDs (including legacy labels), never custom category text. */
+export function categoryLabel(category: string, presets: readonly string[]): string {
+  const key = normalizeCategory(category);
+  const index = CATEGORY_KEYS.indexOf(key as (typeof CATEGORY_KEYS)[number]);
+  return index >= 0 ? (presets[index] ?? category) : category;
+}
+
 /** Emoji per expense category (matches the localized presets; unknown free-text categories get a tag). */
 const CATEGORY_ICONS: Record<string, string> = {
   essen: '🍽️',
@@ -43,6 +70,7 @@ const ALIASES: Record<string, string> = {
   unterkunft: 'accommodation',
   aktivitäten: 'activities',
   einkauf: 'shopping',
+  sonstiges: 'other',
 };
 
 export function nearbyFilters(category: string | null | undefined): string[] | null {

@@ -6,6 +6,7 @@ import { ArrowLeft, ChevronDown, RotateCcw, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { trpc } from '@/lib/trpc';
 import { formatCents } from '@/lib/money';
+import { categoryLabel } from '@/lib/categories';
 import { cn } from '@/lib/utils';
 import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
@@ -15,6 +16,7 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner';
 export default function TrashPage({ params }: { params: Promise<{ groupId: string }> }) {
   const { groupId } = use(params);
   const t = useTranslations('groups');
+  const tExp = useTranslations('expenses');
   const locale = useLocale();
   const utils = trpc.useUtils();
   const group = trpc.groups.get.useQuery({ groupId });
@@ -126,7 +128,7 @@ export default function TrashPage({ params }: { params: Promise<{ groupId: strin
                       {d.category && (
                         <>
                           <dt className="text-muted-foreground">{t('trash.category')}</dt>
-                          <dd>{d.category}</dd>
+                          <dd>{categoryLabel(d.category, tExp.raw('new.categoryPresets') as string[])}</dd>
                         </>
                       )}
                       {d.placeName && (

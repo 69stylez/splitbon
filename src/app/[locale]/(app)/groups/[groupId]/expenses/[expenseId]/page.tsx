@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { Link, useRouter } from '@/i18n/navigation';
 import { trpc } from '@/lib/trpc';
 import { formatCents } from '@/lib/money';
+import { categoryLabel } from '@/lib/categories';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -120,7 +121,7 @@ export default function ExpenseDetailPage({ params }: { params: Promise<{ groupI
             {e.category && (
               <div>
                 <p className="text-muted-foreground">{t('detail.category')}</p>
-                <p className="font-medium">{e.category}</p>
+                <p className="font-medium">{categoryLabel(e.category, t.raw('new.categoryPresets') as string[])}</p>
               </div>
             )}
             {e.placeName && (

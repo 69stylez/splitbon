@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { BarChart3 } from 'lucide-react';
 import { formatCents } from '@/lib/money';
-import { categoryIcon } from '@/lib/categories';
+import { categoryIcon, categoryLabel } from '@/lib/categories';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BudgetBar } from '@/components/groups/stats-extras';
 import { CHART_COLORS } from '@/components/groups/stats-charts';
@@ -33,6 +33,8 @@ export function MySpendingCard({
   locale: string;
 }) {
   const t = useTranslations('groups');
+  const tExp = useTranslations('expenses');
+  const presets = tExp.raw('new.categoryPresets') as string[];
   const money = (c: number) => formatCents(c, currency, locale);
   const net = totals.paid - totals.share;
   const sharePct = totals.total > 0 ? Math.round((totals.share / totals.total) * 100) : 0;
@@ -41,7 +43,7 @@ export function MySpendingCard({
   const restValue = totals.categories.slice(5).reduce((a, c) => a + c.amount, 0);
   const slices = [
     ...top.map((c) => ({
-      label: c.category ?? t('stats.noCategory'),
+      label: c.category ? categoryLabel(c.category, presets) : t('stats.noCategory'),
       icon: categoryIcon(c.category),
       value: c.amount,
     })),

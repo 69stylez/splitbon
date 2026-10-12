@@ -6,7 +6,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { ArrowLeft } from 'lucide-react';
 import { trpc } from '@/lib/trpc';
 import { formatCents } from '@/lib/money';
-import { categoryIcon } from '@/lib/categories';
+import { categoryIcon, categoryLabel } from '@/lib/categories';
 import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -34,6 +34,7 @@ export default function GroupStatsPage({ params }: { params: Promise<{ groupId: 
   const { groupId } = use(params);
   const locale = useLocale();
   const t = useTranslations('groups');
+  const tExp = useTranslations('expenses');
   const { data: authSession } = useSession();
   const myId = authSession?.user?.id;
   const [scope, setScope] = useState<Scope>('group');
@@ -56,7 +57,8 @@ export default function GroupStatsPage({ params }: { params: Promise<{ groupId: 
       .filter((e) => e.value > 0);
 
     const total = scoped.reduce((a, e) => a + e.value, 0);
-    const catLabel = (c: string | null) => (c ? c.charAt(0).toUpperCase() + c.slice(1) : t('stats.noCategory'));
+    const catLabel = (c: string | null) =>
+      c ? categoryLabel(c, tExp.raw('new.categoryPresets') as string[]) : t('stats.noCategory');
 
     const byCategory = new Map<string, number>();
     for (const e of scoped) byCategory.set(catLabel(e.category), (byCategory.get(catLabel(e.category)) ?? 0) + e.value);
@@ -154,7 +156,7 @@ export default function GroupStatsPage({ params }: { params: Promise<{ groupId: 
       mapPoints,
       scoped,
     };
-  }, [stats.data, scope, myId, locale, t]);
+  }, [stats.data, scope, myId, locale, t, tExp]);
 
   if ((group.isLoading || stats.isLoading) && !group.isError) return <LoadingSpinner />;
   if (!group.data) return null;
