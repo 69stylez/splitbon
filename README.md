@@ -93,21 +93,21 @@ Splitbon also has a built-in **How it works** page with short videos, and a feed
 
 ## Translation status
 
-All language packs contain the same 1,219 UI keys. The bar shows the share of texts that differ from the English source; product names and technical terms can legitimately remain English.
+All nine language packs contain the same **1,215 UI keys** and are checked by `npm run lint:i18n`. The coverage figure shows the share of UI strings that differs from the English source; brand names and technical terms may deliberately remain English.
 
-| Language             | Status      | UI text distinct from English |
-| -------------------- | ----------- | ----------------------------- |
-| English              | ✅ Verified | `██████████` 100%             |
-| German               | ✅ Verified | `██████████` 100%             |
-| Spanish              | ⚠️ Partial  | `████████░░` 75%              |
-| Swedish              | ⚠️ Partial  | `████████░░` 75%              |
-| French               | ⚠️ Partial  | `████████░░` 75%              |
-| Portuguese (BR)      | ⚠️ Partial  | `████████░░` 75%              |
-| Japanese             | ⚠️ Partial  | `████████░░` 76%              |
-| Chinese (Simplified) | ⚠️ Partial  | `████████░░` 76%              |
-| Korean               | ⚠️ Partial  | `████████░░` 76%              |
+| Language             | Status       | UI text distinct from English |
+| -------------------- | ------------ | ----------------------------- |
+| English              | ✅ Source     | —                             |
+| German               | ✅ Complete   | `██████████` 95.6%            |
+| Spanish              | ✅ Complete   | `██████████` 97.7%            |
+| Swedish              | ✅ Complete   | `██████████` 97.3%            |
+| French               | ✅ Complete   | `██████████` 97.0%            |
+| Portuguese (BR)      | ✅ Complete   | `██████████` 97.4%            |
+| Japanese             | ✅ Complete   | `██████████` 98.7%            |
+| Chinese (Simplified) | ✅ Complete   | `██████████` 99.1%            |
+| Korean               | ✅ Complete   | `██████████` 98.8%            |
 
-Partial languages are usable, but some screens can still show English. Run `npm run lint:i18n` to ensure every language pack keeps the same keys.
+Run `npm run lint:i18n` after changing messages to verify that every language pack still has the same keys as English.
 
 ## How it compares
 
