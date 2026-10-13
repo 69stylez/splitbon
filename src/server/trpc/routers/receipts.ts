@@ -1111,6 +1111,18 @@ export const receiptsRouter = createTRPCRouter({
         receiptId: z.string(),
         paidById: z.string().nullable().optional(),
         date: receiptDateInput.optional(),
+        title: z.string().max(200).optional(),
+        place: z.object({
+          placeName: z.string().max(500),
+          latitude: z.number().min(-90).max(90).nullable(),
+          longitude: z.number().min(-180).max(180).nullable(),
+        }).optional(),
+        category: z.string().max(50).optional(),
+        tipOverride: z.string().max(50).optional(),
+        paidTotalStr: z.string().max(50).optional(),
+        useCharged: z.boolean().optional(),
+        chargedStr: z.string().max(50).optional(),
+        useLatestRate: z.boolean().optional(),
         assignments: z
           .array(
             z.object({
@@ -1175,12 +1187,22 @@ export const receiptsRouter = createTRPCRouter({
           data: {
             groupId: input.groupId,
             savedById: ctx.user.id,
-            ...(input.date
+            ...(input.date || input.title !== undefined || input.place !== undefined || input.category !== undefined || input.tipOverride !== undefined || input.paidTotalStr !== undefined || input.useCharged !== undefined || input.chargedStr !== undefined || input.useLatestRate !== undefined
               ? {
                   extractedData: {
                     ...parseExtractedData(receipt.extractedData),
-                    date: input.date,
-                    dateSource: 'manual',
+                    ...(input.date ? { date: input.date, dateSource: 'manual' } : {}),
+                    receiptDraft: {
+                      ...parseExtractedData(receipt.extractedData).receiptDraft,
+                      ...(input.title !== undefined ? { title: input.title } : {}),
+                      ...(input.place !== undefined ? { place: input.place } : {}),
+                      ...(input.category !== undefined ? { category: input.category } : {}),
+                      ...(input.tipOverride !== undefined ? { tipOverride: input.tipOverride } : {}),
+                      ...(input.paidTotalStr !== undefined ? { paidTotalStr: input.paidTotalStr } : {}),
+                      ...(input.useCharged !== undefined ? { useCharged: input.useCharged } : {}),
+                      ...(input.chargedStr !== undefined ? { chargedStr: input.chargedStr } : {}),
+                      ...(input.useLatestRate !== undefined ? { useLatestRate: input.useLatestRate } : {}),
+                    },
                   } as Prisma.InputJsonValue,
                 }
               : {}),
@@ -1320,7 +1342,7 @@ export const receiptsRouter = createTRPCRouter({
         entityId: receipt.id,
         vars: {
           actor: actor?.name ?? actor?.email ?? '?',
-          title: extracted?.merchantName?.trim() || receipt.originalName,
+          title: extracted?.receiptDraft?.title?.trim() || extracted?.merchantName?.trim() || receipt.originalName,
         },
       })),
     );

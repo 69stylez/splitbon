@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { claimShare, claimsToAssignments, openUnits } from './receipt-claims';
+import { claimLineShare, claimShare, claimsToAssignments, openUnits } from './receipt-claims';
 
 const items = [
   { id: 'pizza', totalPrice: 1200 },
@@ -27,6 +27,26 @@ test('units decide how a line of several is split', () => {
   ];
   expect(claimShare({ items: beer, claims, userId: 'a', extra: 0 })).toBe(1000);
   expect(claimShare({ items: beer, claims, userId: 'b', extra: 0 })).toBe(500);
+});
+
+test('one of two units costs half even while the other unit is still open, including extras', () => {
+  const omelettes = [{ id: 'omelette', quantity: 2, totalPrice: 50000 }];
+  const claims = [{ receiptItemId: 'omelette', userId: 'a', units: 1 }];
+  expect(claimShare({ items: omelettes, claims, userId: 'a', extra: 0 })).toBe(25000);
+  expect(claimShare({ items: omelettes, claims, userId: 'a', extra: 5000 })).toBe(27500);
+  expect(claimShare({ items: omelettes, claims: [{ ...claims[0]!, units: 2 }], userId: 'a', extra: 0 })).toBe(50000);
+});
+
+test('the displayed line price stays consistent when somebody picks the remaining unit', () => {
+  const item = { totalPrice: 50000, quantity: 2 };
+  expect(claimLineShare(item, [{ units: 1 }], 1)).toBe(25000);
+  expect(claimLineShare(item, [{ units: 1 }, { units: 1 }], 1)).toBe(25000);
+  expect(claimLineShare(item, [{ units: 2 }], 2)).toBe(50000);
+  expect(claimLineShare(item, [{ units: 1 }, { units: 1 }], 0)).toBe(0);
+});
+
+test('one unit shared by two people keeps its shared price', () => {
+  expect(claimLineShare({ totalPrice: 500, quantity: 1 }, [{ units: 1 }, { units: 1 }], 1)).toBe(250);
 });
 
 test('a line is open until its units are picked', () => {

@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, use, useState, useEffect } from 'react';
+import { Suspense, use, useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Link, useRouter } from '@/i18n/navigation';
@@ -13,9 +13,10 @@ import { ArrowLeft, Loader2, Camera, Users, BellRing } from 'lucide-react';
 import { CorrectionChat } from '@/components/receipts/correction-chat';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
-import { ItemAssignment } from '@/components/receipts/item-assignment';
+import { ItemAssignment, type ItemAssignmentHandle } from '@/components/receipts/item-assignment';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { loadingMessageKeys } from '@/lib/loading-messages';
+import { startSavedClaimRequest } from '@/lib/receipt-claim-request';
 
 type Step = 'upload' | 'processing' | 'assign' | 'error';
 
@@ -50,6 +51,8 @@ function ScanReceiptContent({ params }: { params: Promise<{ groupId: string }> }
 
   const [step, setStep] = useState<Step>(resumeReceiptId ? 'assign' : 'upload');
   const [receiptId, setReceiptId] = useState<string | null>(resumeReceiptId);
+  const assignmentRef = useRef<ItemAssignmentHandle>(null);
+  const [preparingClaim, setPreparingClaim] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [uploading, setUploading] = useState(false);
   const [loadingMsgIdx, setLoadingMsgIdx] = useState(0);
@@ -105,6 +108,19 @@ function ScanReceiptContent({ params }: { params: Promise<{ groupId: string }> }
     { receiptId: receiptId! },
     { enabled: step === 'assign' && !!receiptId },
   );
+
+  async function handleStartClaimRequest() {
+    if (!receiptId || !assignmentRef.current || preparingClaim || startClaimRequest.isPending) return;
+    const editor = assignmentRef.current;
+    setPreparingClaim(true);
+    try {
+      await startSavedClaimRequest(editor.saveDraft, () => startClaimRequest.mutateAsync({ receiptId }));
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : t('createSessionFailed'));
+    } finally {
+      setPreparingClaim(false);
+    }
+  }
 
   async function handleShareForClaiming() {
     if (!receiptId || !receiptData.data) return;
@@ -365,12 +381,12 @@ function ScanReceiptContent({ params }: { params: Promise<{ groupId: string }> }
                     <p className="text-xs text-muted-foreground">{t('startClaimRequestHint')}</p>
                     <Button
                       className="w-full"
-                      onClick={() => receiptId && startClaimRequest.mutate({ receiptId })}
-                      disabled={claimRequestReason !== null || startClaimRequest.isPending}
+                      onClick={handleStartClaimRequest}
+                      disabled={claimRequestReason !== null || preparingClaim || startClaimRequest.isPending}
                       data-testid="start-claim-request-btn"
                     >
                       <BellRing className="mr-2 h-4 w-4" />
-                      {startClaimRequest.isPending ? t('claimRequestSending') : t('startClaimRequest')}
+                      {preparingClaim || startClaimRequest.isPending ? t('claimRequestSending') : t('startClaimRequest')}
                     </Button>
                     {claimRequestReason && (
                       <p className="text-xs text-amber-600 dark:text-amber-400" data-testid="claim-request-reason">
@@ -382,11 +398,12 @@ function ScanReceiptContent({ params }: { params: Promise<{ groupId: string }> }
               </CardContent>
             </Card>
           )}
-          <fieldset disabled={correctionBlocked} className={correctionBlocked ? 'pointer-events-none opacity-60' : ''}>
+          <fieldset disabled={correctionBlocked || preparingClaim} className={correctionBlocked ? 'pointer-events-none opacity-60' : ''}>
             {editExpenseId && !editExpense.data ? (
               <LoadingSpinner />
             ) : (
               <ItemAssignment
+                ref={assignmentRef}
                 key={`${receiptId}:${correctionRevision}:${editExpenseId ?? ''}`}
                 groupId={groupId}
                 receiptId={receiptId}

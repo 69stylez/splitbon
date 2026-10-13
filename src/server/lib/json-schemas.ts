@@ -1,10 +1,26 @@
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
 
+export const receiptDraftSchema = z.object({
+  title: z.string().max(200).optional(),
+  place: z.object({
+    placeName: z.string().max(500),
+    latitude: z.number().min(-90).max(90).nullable(),
+    longitude: z.number().min(-180).max(180).nullable(),
+  }).optional(),
+  category: z.string().max(50).optional(),
+  tipOverride: z.string().max(50).optional(),
+  paidTotalStr: z.string().max(50).optional(),
+  useCharged: z.boolean().optional(),
+  chargedStr: z.string().max(50).optional(),
+  useLatestRate: z.boolean().optional(),
+});
+
 export const extractedDataSchema = z
   .object({
     merchantName: z.string().optional(),
     merchantAddress: z.string().optional(),
+    receiptDraft: receiptDraftSchema.optional(),
     date: z.string().optional(),
     subtotal: z.number().int().min(0).default(0),
     tax: z.number().int().min(0).default(0),

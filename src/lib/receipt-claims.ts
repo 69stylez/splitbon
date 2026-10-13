@@ -1,5 +1,15 @@
 export type Claim = { receiptItemId: string; userId: string; units?: number };
 
+/** A pick never pays for units that are still open; oversubscribed lines share by weight. */
+export function claimLineShare(
+  item: { totalPrice: number; quantity?: number },
+  claims: { units?: number }[],
+  units: number,
+): number {
+  const picked = claims.reduce((sum, c) => sum + (c.units ?? 1), 0);
+  return (item.totalPrice * units) / Math.max(item.quantity ?? 1, picked, 1);
+}
+
 /**
  * Units of a line nobody has picked yet: a line of one is open until someone picks it (sharing it is
  * fine), a line of several until the picked units add up to its quantity.
@@ -16,7 +26,7 @@ export function openUnits(quantity: number, claims: { units?: number }[]): numbe
  * proportion to their units, plus tax and tip in proportion to the lines. An estimate until booked.
  */
 export function claimShare(args: {
-  items: { id: string; totalPrice: number }[];
+  items: { id: string; totalPrice: number; quantity?: number }[];
   claims: Claim[];
   userId: string;
   /** Tax and tip together */
@@ -30,7 +40,7 @@ export function claimShare(args: {
   let lines = 0;
   for (const item of args.items) {
     const units = mine.get(item.id);
-    if (units) lines += (item.totalPrice * units) / (unitsOnLine.get(item.id) ?? units);
+    if (units) lines += claimLineShare(item, [{ units: unitsOnLine.get(item.id) ?? units }], units);
   }
   const extra = itemsSum > 0 ? (args.extra * lines) / itemsSum : 0;
   return Math.round(lines + extra);

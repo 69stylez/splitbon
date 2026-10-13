@@ -60,7 +60,7 @@ function fixture(
     },
     receipt: {
       findUnique: vi.fn(async () => receipt),
-      update: vi.fn(async () => receipt),
+      update: vi.fn(async (args: { data: Record<string, unknown> }) => Object.assign(receipt, args.data)),
       updateMany: vi.fn(async () => ({ count: 1 })),
     },
     receiptClaimDone: {
@@ -75,7 +75,13 @@ function fixture(
       deleteMany: vi.fn(async () => ({ count: 1 })),
     },
     expense: { findUnique: vi.fn(async () => (opts.expense ? { id: 'exp' } : null)) },
+    groupMember: {
+      findUnique: vi.fn(async () => ({ userId: 'alice' })),
+      findMany: vi.fn(async () => [{ userId: 'alice' }, { userId: 'bob' }, { userId: 'carol' }]),
+    },
+    receiptItemAssignment: { deleteMany: vi.fn(async () => ({ count: 0 })) },
   };
+  Object.assign(db, { $transaction: async (fn: (tx: typeof db) => Promise<unknown>) => fn(db) });
   const caller = receiptsRouter.createCaller({
     db,
     session: { user: { id: opts.userId ?? 'alice' } },
@@ -86,6 +92,58 @@ function fixture(
 }
 
 beforeEach(() => sendNotifications.mockClear());
+
+test('saving a receipt draft preserves title, location, category and OCR before asking the group', async () => {
+  const { caller, db, receiptId } = fixture();
+  const original = await db.receipt.findUnique();
+  Object.assign(original.extractedData, { merchantAddress: 'OCR address', scanProvider: 'mock' });
+  const receiptDraft = {
+    title: 'Breakfast by the Nile',
+    place: { placeName: 'Terrace', latitude: 30.1, longitude: 31.2 },
+    category: 'food',
+    tipOverride: '2,50',
+    paidTotalStr: '12,50',
+    useCharged: true,
+    chargedStr: '11,25',
+    useLatestRate: true,
+  };
+  await caller.saveForLater({ groupId: 'group', receiptId, date: '2026-10-13', ...receiptDraft, assignments: [] });
+  const saved = await db.receipt.findUnique();
+  expect(saved.extractedData).toMatchObject({
+    merchantName: 'Café Nil', merchantAddress: 'OCR address', scanProvider: 'mock',
+    total: 1000, items: [], date: '2026-10-13', dateSource: 'manual', receiptDraft,
+  });
+  await caller.startClaimRequest({ receiptId });
+  expect(sendNotifications).toHaveBeenCalledWith(db, expect.arrayContaining([
+    expect.objectContaining({ vars: expect.objectContaining({ title: receiptDraft.title }) }),
+  ]));
+  // Older callers saving just the payer/date must not erase the saved metadata.
+  await caller.saveForLater({ groupId: 'group', receiptId, date: '2026-10-14' });
+  expect((await db.receipt.findUnique()).extractedData).toMatchObject({ receiptDraft });
+});
+
+test('general amount and conversion fields can be explicitly cleared without losing other draft data', async () => {
+  const { caller, db, receiptId } = fixture();
+  await caller.saveForLater({ groupId: 'group', receiptId, title: 'Breakfast', paidById: 'bob',
+    tipOverride: '2.50', paidTotalStr: '12.50', useCharged: true, chargedStr: '11.25', useLatestRate: true });
+  await caller.saveForLater({ groupId: 'group', receiptId,
+    tipOverride: '', paidTotalStr: '', useCharged: false, chargedStr: '', useLatestRate: false });
+  const saved = await db.receipt.findUnique();
+  expect(saved.paidById).toBe('bob');
+  expect(saved.extractedData).toMatchObject({ receiptDraft: { title: 'Breakfast',
+    tipOverride: '', paidTotalStr: '', useCharged: false, chargedStr: '', useLatestRate: false } });
+});
+
+test('draft metadata supports explicitly clearing the location', async () => {
+  const { caller, db, receiptId } = fixture();
+  await caller.saveForLater({ groupId: 'group', receiptId, title: 'Breakfast',
+    place: { placeName: 'Terrace', latitude: 30.1, longitude: 31.2 } });
+  await caller.saveForLater({ groupId: 'group', receiptId,
+    place: { placeName: '', latitude: null, longitude: null } });
+  expect((await db.receipt.findUnique()).extractedData).toMatchObject({ receiptDraft: {
+    title: 'Breakfast', place: { placeName: '', latitude: null, longitude: null },
+  } });
+});
 
 test('starting a request marks the receipt and notifies every other member', async () => {
   const { caller, db, receiptId } = fixture();

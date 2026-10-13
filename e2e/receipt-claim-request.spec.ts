@@ -38,8 +38,23 @@ test('everyone picks their own lines and the organizer gets them automatically',
     expect(items.length).toBeGreaterThan(1);
 
     // Alice asks the group; Bob gets a notification that leads to the picking page
-    const started = await mutationResult(await trpcMutation(owner, 'receipts.startClaimRequest', { receiptId }));
-    expect(started.notified).toBe(1);
+    await login(page, users.alice.email, users.alice.password);
+    await page.goto(`/en/groups/${groupId}/scan?receiptId=${receiptId}`);
+    await page.locator('#title').fill('Breakfast by the Nile');
+    await page.locator('#location').fill('Terrace');
+    await page.getByTestId('receipt-date-input').fill('2026-10-12');
+    await page.getByTestId('paid-by-select').selectOption(memberIds[users.bob.email]);
+    await page.getByTestId('tip-input').fill('2.50');
+    await page.getByTestId('paid-total-input').fill('100.00');
+    await page.getByTestId('start-claim-request-btn').click();
+    await expect(page).toHaveURL(new RegExp(`/receipts/${receiptId}/claim`));
+    await expect(page.getByTestId('claim-receipt-info')).toContainText('Breakfast by the Nile');
+    await expect(page.getByTestId('claim-receipt-info')).toContainText('Terrace');
+    const draft = await trpcResult(await trpcQuery(owner, 'receipts.getReceiptItems', { receiptId }));
+    expect(draft.receipt.extractedData.receiptDraft).toMatchObject({
+      title: 'Breakfast by the Nile', place: { placeName: 'Terrace' },
+      tipOverride: '2.50', paidTotalStr: '100.00', useCharged: false, chargedStr: '', useLatestRate: false,
+    });
     const bobNotes = await trpcResult(await trpcQuery(bob, 'notifications.list'));
     expect(
       bobNotes.items.some(
@@ -85,6 +100,9 @@ test('everyone picks their own lines and the organizer gets them automatically',
     if (tacos) {
       await page.getByTestId(`claim-item-${tacos.id}`).click();
       await expect(page.getByTestId(`claim-my-units-${tacos.id}`)).toHaveText('1');
+      await expect(page.getByTestId(`claim-item-${tacos.id}`)).toContainText(`1× ${tacos.name}`);
+      const { formatCents } = await import('../src/lib/money');
+      await expect(page.getByTestId(`claim-price-${tacos.id}`)).toHaveText(formatCents(Math.round(tacos.totalPrice / 3), draft.receipt.extractedData.currency, 'en'));
       await page.getByTestId(`claim-units-${tacos.id}`).getByRole('button', { name: 'One more' }).click();
       await expect(page.getByTestId(`claim-my-units-${tacos.id}`)).toHaveText('2');
       await mutationResult(await trpcMutation(bob, 'receipts.setClaim', { receiptItemId: tacos.id, units: 1 }));
@@ -95,6 +113,11 @@ test('everyone picks their own lines and the organizer gets them automatically',
 
     // On the receipt, the picks become assignments without a second Apply action.
     await page.goto(`/en/groups/${groupId}/scan?receiptId=${receiptId}`);
+    await expect(page.locator('#title')).toHaveValue('Breakfast by the Nile');
+    await expect(page.locator('#location')).toHaveValue('Terrace');
+    await expect(page.getByTestId('receipt-date-input')).toHaveValue('2026-10-12');
+    await expect(page.getByTestId('paid-by-select')).toHaveValue(memberIds[users.bob.email]);
+    await expect(page.getByTestId('paid-total-input')).toHaveValue('100.00');
     await expect(page.getByTestId('claim-status')).toBeVisible({ timeout: 30_000 });
     await expect(page.getByTestId('claims-auto-applied')).toContainText("The group's picks are applied automatically");
     await expect(

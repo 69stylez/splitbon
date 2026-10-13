@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 import { Link, useRouter } from '@/i18n/navigation';
 import { trpc } from '@/lib/trpc';
 import { formatCents } from '@/lib/money';
-import { claimShare, openUnits } from '@/lib/receipt-claims';
+import { claimLineShare, claimShare, openUnits } from '@/lib/receipt-claims';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -111,13 +111,14 @@ export default function ClaimReceiptPage({ params }: { params: Promise<{ groupId
   const unclaimed = items.filter((i) => openOf(i) > 0).length;
   const myShare = myId
     ? claimShare({
-        items: items.map((i) => ({ id: i.id, totalPrice: i.totalPrice })),
+        items: items.map((i) => ({ id: i.id, totalPrice: i.totalPrice, quantity: i.quantity })),
         claims: claims.data.claims,
         userId: myId,
         extra: extracted.tax + (extracted.tip ?? 0),
       })
     : 0;
-  const merchant = extracted.merchantName?.trim() ?? '';
+  const merchant = extracted.receiptDraft?.title?.trim() || extracted.merchantName?.trim() || '';
+  const address = extracted.receiptDraft?.place?.placeName ?? extracted.merchantAddress ?? '';
   const requester = claims.data.requestedBy?.name;
   const iAmDone = !!myId && claims.data.done.includes(myId);
   const shown = onlyOpen ? items.filter((i) => openOf(i) > 0) : items;
@@ -159,10 +160,10 @@ export default function ClaimReceiptPage({ params }: { params: Promise<{ groupId
                 <Receipt className="h-4 w-4 shrink-0 text-muted-foreground" />
                 <span className="truncate">{merchant || t('receiptFallback')}</span>
               </p>
-              {extracted.merchantAddress?.trim() && (
+              {address.trim() && (
                 <p className="flex items-start gap-2 text-muted-foreground">
                   <MapPin className="mt-0.5 h-4 w-4 shrink-0" />
-                  <span>{extracted.merchantAddress.trim()}</span>
+                  <span>{address.trim()}</span>
                 </p>
               )}
               {extracted.date && (
@@ -263,6 +264,8 @@ export default function ClaimReceiptPage({ params }: { params: Promise<{ groupId
           const claimers = byItem.get(item.id) ?? [];
           const myUnits = claimers.find((c) => c.userId === myId)?.units ?? 0;
           const mine = myUnits > 0;
+          const shownQuantity = mine ? myUnits : item.quantity;
+          const shownPrice = mine ? Math.round(claimLineShare(item, claimers, myUnits)) : item.totalPrice;
           const several = item.quantity > 1;
           const open = openOf(item);
           const locked = booked || !myId;
@@ -294,7 +297,7 @@ export default function ClaimReceiptPage({ params }: { params: Promise<{ groupId
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-medium">
-                    {several ? `${item.quantity}× ` : ''}
+                    {several ? `${shownQuantity}× ` : ''}
                     {item.name}
                   </span>
                   <span className="mt-1 flex flex-wrap items-center gap-1">
@@ -325,9 +328,9 @@ export default function ClaimReceiptPage({ params }: { params: Promise<{ groupId
                 </span>
               </button>
               <div className="flex shrink-0 flex-col items-end gap-1">
-                <span className="text-sm font-semibold tabular-nums">{fmt(item.totalPrice)}</span>
-                {fmtGroup(item.totalPrice) && (
-                  <span className="text-xs tabular-nums text-muted-foreground">≈ {fmtGroup(item.totalPrice)}</span>
+                <span className="text-sm font-semibold tabular-nums" data-testid={`claim-price-${item.id}`}>{fmt(shownPrice)}</span>
+                {fmtGroup(shownPrice) && (
+                  <span className="text-xs tabular-nums text-muted-foreground">≈ {fmtGroup(shownPrice)}</span>
                 )}
                 {several && mine && (
                   <span className="inline-flex items-center gap-1" data-testid={`claim-units-${item.id}`}>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, useMemo } from 'react';
+import { useState, useRef, useEffect, useMemo, useImperativeHandle, type Ref } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { trpc } from '@/lib/trpc';
 import { formatCents, centsToDecimal, parseToCents, parseAmountInput, sanitizeAmountInput } from '@/lib/money';
@@ -30,9 +30,11 @@ import { toast } from 'sonner';
 import { useOrderedCurrencies } from '@/lib/use-ordered-currencies';
 import { ReceiptRatePreview } from './receipt-rate-preview';
 import { ReceiptHistory, scrollToItem } from './receipt-history';
-import { claimsToAssignments } from '@/lib/receipt-claims';
+import { claimShare, claimsToAssignments, openUnits } from '@/lib/receipt-claims';
 import { Link } from '@/i18n/navigation';
 import { normalizeDate } from '@/server/lib/normalize-date';
+
+export type ItemAssignmentHandle = { saveDraft: () => Promise<void> };
 
 type Member = { id: string; name: string | null; image?: string | null | undefined };
 
@@ -50,6 +52,7 @@ function formatReceiptCents(amount: number, currency: string, locale: string): s
 }
 
 export function ItemAssignment({
+  ref,
   groupId,
   receiptId,
   members,
@@ -61,6 +64,7 @@ export function ItemAssignment({
   onCompareChange,
   groupCurrency,
 }: {
+  ref?: Ref<ItemAssignmentHandle>;
   groupId: string;
   receiptId: string;
   members: Member[];
@@ -108,6 +112,7 @@ export function ItemAssignment({
   // Group picks update while the request is open. Once the creator changes a split manually,
   // leave that deliberate correction alone instead of replacing it during the next poll.
   const claimsManuallyAdjustedRef = useRef(false);
+  const [claimsManuallyAdjusted, setClaimsManuallyAdjusted] = useState(false);
   const autoClaimItemIdsRef = useRef<Set<string>>(new Set());
   const autoAppliedClaimsRef = useRef<string | null>(null);
   const countOf = (itemId: string, userId: string) => counts[itemId]?.[userId] ?? 1;
@@ -220,9 +225,10 @@ export function ItemAssignment({
     onError: (e) => toast.error(e.message),
   });
   const saveForLater = trpc.receipts.saveForLater.useMutation({
-    onSuccess: () => onSaveForLater?.(),
     onError: (e) => toast.error(e.message),
   });
+
+  useImperativeHandle(ref, () => ({ saveDraft }));
 
   // Toggle the image. Zoom/pan reset on every toggle (fresh view when
   // opening, cleanup when hiding), and the visibility flip is a functional
@@ -288,7 +294,18 @@ export function ItemAssignment({
       return;
     }
 
-    if (data.receipt.extractedData?.merchantName && !title) {
+    const draft = data.receipt.extractedData?.receiptDraft;
+    if (draft) {
+      if (draft.title !== undefined) setTitle(draft.title);
+      if (draft.place) setPlace(draft.place);
+      if (draft.category !== undefined) setCategory(draft.category);
+      if (draft.tipOverride !== undefined) setTipOverride(draft.tipOverride);
+      if (draft.paidTotalStr !== undefined) setPaidTotalStr(draft.paidTotalStr);
+      if (draft.useCharged !== undefined) setUseCharged(draft.useCharged);
+      if (draft.chargedStr !== undefined) setChargedStr(draft.chargedStr);
+      if (draft.useLatestRate !== undefined) setUseLatestRate(draft.useLatestRate);
+    }
+    if (draft?.title === undefined && data.receipt.extractedData?.merchantName && !title) {
       setTitle(data.receipt.extractedData.merchantName);
     }
 
@@ -297,7 +314,7 @@ export function ItemAssignment({
       (item: { assignments?: unknown[] }) => item.assignments && item.assignments.length > 0,
     );
 
-    if (hasSavedPaidBy || hasSavedAssignments) {
+    if (draft || hasSavedPaidBy || hasSavedAssignments) {
       if (hasSavedPaidBy) {
         setPaidById(data.receipt.paidById!);
       }
@@ -397,6 +414,7 @@ export function ItemAssignment({
   // (2 of 3 coffees), and tapping at the line's quantity removes the person again.
   function toggleAssignment(itemId: string, userId: string) {
     claimsManuallyAdjustedRef.current = true;
+    setClaimsManuallyAdjusted(true);
     const quantity = Math.max(1, items.find((it) => it.id === itemId)?.quantity ?? 1);
     const isAssigned = assignments[itemId]?.has(userId) ?? false;
     const current = countOf(itemId, userId);
@@ -424,6 +442,7 @@ export function ItemAssignment({
 
   function assignAllToEveryone() {
     claimsManuallyAdjustedRef.current = true;
+    setClaimsManuallyAdjusted(true);
     setCounts({});
     const next: Assignments = {};
     for (const item of items) {
@@ -482,6 +501,14 @@ export function ItemAssignment({
   // Calculate per-person totals using shared calculateSplitTotals (Finding #30).
   // Memoized to avoid recomputation on every render (Finding #36).
   const perPersonTotals = useMemo(() => {
+    if (claims.data?.requestedAt && !claimsManuallyAdjusted) {
+      const picks = Object.entries(assignments).flatMap(([receiptItemId, userIds]) =>
+        Array.from(userIds).map((userId) => ({ receiptItemId, userId, units: counts[receiptItemId]?.[userId] ?? 1 })),
+      );
+      return new Map(members.map((member) => [member.id, claimShare({
+        items, claims: picks, userId: member.id, extra: (extracted?.tax ?? 0) + tip,
+      })]));
+    }
     // Build member-id -> index mapping for calculateSplitTotals
     const memberIdToIndex = new Map<string, number>();
     members.forEach((m, i) => memberIdToIndex.set(m.id, i));
@@ -514,9 +541,12 @@ export function ItemAssignment({
       if (member) totals.set(member.id, r.total);
     }
     return totals;
-  }, [items, assignments, counts, members, extracted, tip]);
+  }, [items, assignments, counts, members, extracted, tip, claims.data?.requestedAt, claimsManuallyAdjusted]);
   const assignedItemCount = Object.values(assignments).filter((s) => s.size > 0).length;
-  const allAssigned = items.length > 0 && assignedItemCount === items.length;
+  const automaticPicksComplete = !claims.data?.requestedAt || claimsManuallyAdjusted || items.every((item) =>
+    openUnits(item.quantity, Array.from(assignments[item.id] ?? []).map((userId) => ({ units: countOf(item.id, userId) }))) === 0,
+  );
+  const allAssigned = items.length > 0 && assignedItemCount === items.length && automaticPicksComplete;
 
   if (receiptData.isLoading) {
     return <p className="text-muted-foreground">{t('loadingItems')}</p>;
@@ -596,12 +626,20 @@ export function ItemAssignment({
     });
   }
 
-  function handleSaveForLater() {
-    if (!validDate) return;
-    saveForLater.mutate({
+  async function saveDraft() {
+    if (!validDate) throw new Error('Please enter a valid receipt date before sharing');
+    await saveForLater.mutateAsync({
       groupId,
       receiptId,
       date,
+      title,
+      place,
+      category,
+      tipOverride,
+      paidTotalStr,
+      useCharged,
+      chargedStr,
+      useLatestRate,
       paidById: paidById || null,
       assignments: Object.entries(assignments)
         .filter(([, userIds]) => userIds.size > 0)
@@ -611,6 +649,16 @@ export function ItemAssignment({
           weights: weightsFor(receiptItemId, userIds),
         })),
     });
+  }
+
+  async function handleSaveForLater() {
+    if (!validDate) return;
+    try {
+      await saveDraft();
+      onSaveForLater?.();
+    } catch {
+      // Mutation errors leave the current draft on screen.
+    }
   }
 
   return (
