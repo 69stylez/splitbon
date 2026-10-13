@@ -250,6 +250,7 @@
     "claimStatus": "{people} 人已选择 {total} 项中的 {items} 项。",
     "applyClaims": "采用群组的选择",
     "claimsApplied": "已采用群组的选择",
+    "claimsAutoApplied": "群组的选择会自动采用",
     "pickOwn": "选择我的项目"
   },
   "splits": {

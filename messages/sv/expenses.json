@@ -250,6 +250,7 @@
     "claimStatus": "{people, plural, one {# person har} other {# personer har}} valt {items} av {total} poster.",
     "applyClaims": "Använd gruppens val",
     "claimsApplied": "Gruppens val har använts",
+    "claimsAutoApplied": "Gruppens val tillämpas automatiskt",
     "pickOwn": "Välj mina poster"
   },
   "splits": {

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { Bell, BellOff, BellRing, Check } from 'lucide-react';
+import { Bell, BellOff, BellRing, Check, ExternalLink, Smartphone } from 'lucide-react';
 import { toast } from 'sonner';
 import { detectPushSupport, readPushEnvironment, type PushSupport } from '@/lib/push-support';
 import { trpc } from '@/lib/trpc';
@@ -137,6 +137,32 @@ export default function NotificationsPage() {
             />
             {t('enabled')}
           </label>
+          {push?.ios && !push.standalone && (
+            <div
+              className="space-y-3 rounded-lg border border-primary/40 bg-primary/5 p-3"
+              data-testid="ios-push-guide"
+            >
+              <div className="flex items-center gap-2 font-medium">
+                <Smartphone className="h-4 w-4 text-primary" />
+                {t('pushIosTitle')}
+              </div>
+              <ol className="list-decimal space-y-1 pl-5 text-muted-foreground">
+                <li>{t('pushIosStep1')}</li>
+                <li>{t('pushIosStep2')}</li>
+                <li>{t('pushIosStep3')}</li>
+                <li>{t('pushIosStep4')}</li>
+              </ol>
+              <a
+                href="https://support.apple.com/guide/iphone/add-a-website-to-your-home-screen-iph42ab2f3a7/ios"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+                {t('pushIosGuide')}
+              </a>
+            </div>
+          )}
           {pushSupported ? (
             pushOn ? (
               <Button variant="outline" size="sm" disabled={busy} onClick={disablePush}>

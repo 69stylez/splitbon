@@ -250,6 +250,7 @@
     "claimStatus": "{people, plural, one {# Person hat} other {# Personen haben}} {items} von {total} Posten gewählt.",
     "applyClaims": "Auswahl der Gruppe übernehmen",
     "claimsApplied": "Auswahl der Gruppe übernommen",
+    "claimsAutoApplied": "Die Auswahl der Gruppe wird automatisch übernommen",
     "pickOwn": "Eigene Posten wählen"
   },
   "splits": {

@@ -13,6 +13,7 @@ export type NotifyKind =
   | 'PRICE_CHANGED'
   | 'SHARE_CHANGED'
   | 'SETTLEMENT'
+  | 'PAYMENT_DETAILS_REQUEST'
   | 'CLAIM_REQUEST'
   | 'CLAIMS_COMPLETE'
   | 'CLAIMS_OPEN';
@@ -41,6 +42,10 @@ const TEXTS: Record<'de' | 'en', Record<NotifyKind, (v: NotifyItem['vars']) => {
       body: `Dein Anteil: ${v.from} → ${v.to}`,
     }),
     SETTLEMENT: (v) => ({ title: `${v.actor} hat dir ${v.amount} bezahlt`, body: '' }),
+    PAYMENT_DETAILS_REQUEST: (v) => ({
+      title: `${v.actor} bittet dich um Zahlungsdaten`,
+      body: 'Hinterlege freiwillig PayPal oder eine IBAN unter Einstellungen, damit du Zahlungen erhalten kannst.',
+    }),
     CLAIM_REQUEST: (v) => ({
       title: `${v.actor} bittet dich, deine Posten zu wählen`,
       body: `„${v.title}“ · tippe, um auszuwählen`,
@@ -68,6 +73,10 @@ const TEXTS: Record<'de' | 'en', Record<NotifyKind, (v: NotifyItem['vars']) => {
       body: `Your share: ${v.from} → ${v.to}`,
     }),
     SETTLEMENT: (v) => ({ title: `${v.actor} paid you ${v.amount}`, body: '' }),
+    PAYMENT_DETAILS_REQUEST: (v) => ({
+      title: `${v.actor} asks for your payment details`,
+      body: 'Optionally add PayPal or an IBAN in Settings so you can receive payments.',
+    }),
     CLAIM_REQUEST: (v) => ({
       title: `${v.actor} asks you to pick your items`,
       body: `“${v.title}” · tap to choose`,

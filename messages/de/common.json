@@ -87,6 +87,12 @@
     "pushUnsupported": "Dieser Browser kann keine Push-Meldungen zeigen. Auf dem iPhone Splitbon erst zum Home-Bildschirm hinzufügen. Die Glocke geht überall.",
     "pushIosInstall": "Auf iPhone und iPad funktionieren Mitteilungen nur für die App auf dem Home-Bildschirm. Tippe auf Teilen, dann „Zum Home-Bildschirm“, öffne Splitbon über das neue Symbol und schalte es dort ein.",
     "pushIosUpdate": "Mitteilungen auf iPhone und iPad brauchen iOS 16.4 oder neuer. Bitte iOS aktualisieren.",
+    "pushIosTitle": "Push-Mitteilungen auf iPhone und iPad",
+    "pushIosStep1": "Öffne Splitbon in Safari.",
+    "pushIosStep2": "Tippe unten auf Teilen.",
+    "pushIosStep3": "Tippe auf „Zum Home-Bildschirm“ und dann auf „Hinzufügen“.",
+    "pushIosStep4": "Öffne Splitbon über das neue Symbol und schalte danach „Meldungen auf diesem Gerät erhalten“ ein.",
+    "pushIosGuide": "Apple-Anleitung mit Bildern öffnen",
     "empty": "Noch nichts Neues.",
     "back": "Zurück zum Dashboard"
   }

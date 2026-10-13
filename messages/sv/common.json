@@ -87,6 +87,12 @@
     "pushUnsupported": "Den här webbläsaren kan inte visa push-meddelanden. På iPhone lägger du först till Splitbon på startskärmen. Klockan fungerar överallt.",
     "pushIosInstall": "På iPhone och iPad fungerar notiser bara för appen på hemskärmen. Tryck på Dela, sedan ”Lägg till på hemskärmen”, öppna Splitbon från den nya ikonen och slå på dem där.",
     "pushIosUpdate": "Notiser på iPhone och iPad kräver iOS 16.4 eller senare. Uppdatera iOS.",
+    "pushIosTitle": "Pushnotiser på iPhone och iPad",
+    "pushIosStep1": "Öppna Splitbon i Safari.",
+    "pushIosStep2": "Tryck på Dela längst ned.",
+    "pushIosStep3": "Tryck på ”Lägg till på hemskärmen” och sedan på ”Lägg till”.",
+    "pushIosStep4": "Öppna Splitbon från den nya ikonen och slå på meddelanden på den här enheten.",
+    "pushIosGuide": "Öppna Apples illustrerade guide",
     "empty": "Inget nytt ännu.",
     "back": "Tillbaka till instrumentpanelen"
   }

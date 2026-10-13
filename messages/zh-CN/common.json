@@ -87,6 +87,12 @@
     "pushUnsupported": "该浏览器无法显示推送消息。在 iPhone 上，首先将 Splitbon 添加到主屏幕。钟声无处不在。",
     "pushIosInstall": "在 iPhone 和 iPad 上，只有添加到主屏幕的应用才能收到通知。请点按“分享”，选择“添加到主屏幕”，从新图标打开 Splitbon，并在那里开启。",
     "pushIosUpdate": "iPhone 和 iPad 上的通知需要 iOS 16.4 或更高版本。请更新 iOS。",
+    "pushIosTitle": "iPhone 和 iPad 上的推送通知",
+    "pushIosStep1": "在 Safari 中打开 Splitbon。",
+    "pushIosStep2": "轻点屏幕底部的“分享”。",
+    "pushIosStep3": "轻点“添加到主屏幕”，然后轻点“添加”。",
+    "pushIosStep4": "从新图标打开 Splitbon，然后开启此设备的通知。",
+    "pushIosGuide": "打开 Apple 的图文指南",
     "empty": "还没有什么新东西。",
     "back": "返回仪表板"
   }

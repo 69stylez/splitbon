@@ -143,7 +143,14 @@
     "submitting": "Recording...",
     "unnamed": "Unnamed",
     "suggestions": "Suggested payments",
-    "manual": "Record payment manually"
+    "manual": "Record payment manually",
+    "cancelRecorded": "Cancel recorded payment",
+    "cancelTitle": "Cancel recorded payment?",
+    "cancelDescription": "This only corrects the recorded payment and recalculates balances. No money is refunded. The original payment and cancellation remain in history.",
+    "cancelReason": "Reason (optional)",
+    "cancelError": "Cancellation failed. Please try again.",
+    "cancelConfirm": "Cancel recorded payment now",
+    "canceled": "Canceled · excluded from balances"
   },
   "invite": {
     "title": "Invite to group",
@@ -282,7 +289,8 @@
       "payment": "Payments",
       "receipt": "Receipt items",
       "group": "Group"
-    }
+    },
+    "settlementCanceled": "{name} canceled the recorded payment of {amount} from {from} to {to}."
   },
   "payment": {
     "bankTitle": "Bank transfer",
@@ -293,7 +301,13 @@
     "reference": "Reference",
     "copy": "Copy",
     "copyFailed": "Could not copy",
-    "markPaid": "I've paid"
+    "markPaid": "I've paid",
+    "externalTitle": "Payment of {amount} to {name}",
+    "externalHint": "Opening PayPal or Venmo does not confirm a payment. Mark it as paid only after you have actually completed it.",
+    "notPaid": "Not paid yet",
+    "requestDetails": "Request payment details",
+    "requested": "Request saved",
+    "requestStored": "Request saved. Push is sent to enabled devices."
   },
   "trash": {
     "title": "Trash",

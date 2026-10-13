@@ -87,6 +87,12 @@
     "pushUnsupported": "This browser cannot show push messages. On iPhone, add Splitbon to the home screen first. The bell works everywhere.",
     "pushIosInstall": "On iPhone and iPad, messages only work for the app on your home screen. Tap Share, then “Add to Home Screen”, open Splitbon from the new icon and switch this on there.",
     "pushIosUpdate": "Messages on iPhone and iPad need iOS 16.4 or newer. Please update iOS.",
+    "pushIosTitle": "Push notifications on iPhone and iPad",
+    "pushIosStep1": "Open Splitbon in Safari.",
+    "pushIosStep2": "Tap Share at the bottom of the screen.",
+    "pushIosStep3": "Tap “Add to Home Screen”, then “Add”.",
+    "pushIosStep4": "Open Splitbon from the new icon, then turn on messages for this device.",
+    "pushIosGuide": "Open Apple’s illustrated guide",
     "empty": "Nothing new yet.",
     "back": "Back to dashboard"
   }

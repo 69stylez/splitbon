@@ -1,6 +1,6 @@
 'use client';
 
-import { use, useState, useEffect, useMemo } from 'react';
+import { use, useState, useMemo } from 'react';
 import { useSession } from 'next-auth/react';
 import { useLocale, useTranslations } from 'next-intl';
 import { trpc } from '@/lib/trpc';
@@ -30,6 +30,7 @@ import { toast } from 'sonner';
 import { InviteDialog } from '@/components/groups/invite-dialog';
 import { SettleDialog } from '@/components/groups/settle-dialog';
 import { BankTransferDialog } from '@/components/groups/bank-transfer-dialog';
+import { ExternalPaymentConfirmation } from '@/components/groups/external-payment-confirmation';
 import { OpenClaims } from '@/components/receipts/open-claims';
 import { MySpendingCard } from '@/components/groups/my-spending-card';
 import { BalanceStandings } from '@/components/groups/balance-standings';
@@ -102,6 +103,8 @@ export default function GroupDetailPage({ params }: { params: Promise<{ groupId:
   const utils = trpc.useUtils();
   const settleVenmo = trpc.settlements.create.useMutation({
     onSuccess: () => {
+      setExternalPayment(null);
+      setBankTransfer(null);
       utils.balances.getGroupBalances.invalidate({ groupId });
       utils.balances.getSimplifiedDebts.invalidate({ groupId });
       utils.balances.getDashboard.invalidate();
@@ -112,31 +115,10 @@ export default function GroupDetailPage({ params }: { params: Promise<{ groupId:
     },
   });
 
-  useEffect(() => {
-    if (!externalPayment) return;
-    const timer = setTimeout(() => {
-      const values = {
-        amount: formatCents(externalPayment.debt.amount, externalPayment.currency, locale),
-        name: externalPayment.toName,
-      };
-      const question =
-        externalPayment.kind === 'venmo'
-          ? t('detail.venmoPaymentConfirm', values)
-          : t('detail.paypalPaymentConfirm', values);
-      if (confirm(question)) {
-        settleVenmo.mutate({
-          groupId,
-          fromId: externalPayment.debt.from,
-          toId: externalPayment.debt.to,
-          amount: externalPayment.debt.amount,
-          currency: externalPayment.currency,
-          note: externalPayment.kind === 'venmo' ? t('detail.settledViaVenmo') : t('detail.settledViaPaypal'),
-        });
-      }
-      setExternalPayment(null);
-    }, 2000);
-    return () => clearTimeout(timer);
-  }, [externalPayment, groupId, locale, settleVenmo, t]);
+  const requestPaymentDetails = trpc.notifications.requestPaymentDetails.useMutation({
+    onSuccess: () => toast.success(t('payment.requestStored')),
+    onError: (err) => toast.error(err.message),
+  });
 
   if (group.isLoading && !group.isError) {
     return <LoadingSpinner />;
@@ -158,14 +140,14 @@ export default function GroupDetailPage({ params }: { params: Promise<{ groupId:
   const g = group.data;
   const memberMap = new Map(g.members.map((m) => [m.user.id, m.user]));
 
-  // Opens an external payment page, then asks whether it went through and records the settlement.
+  // Opening a payment link never records a settlement. Explicit confirmation is required.
   function startExternalPayment(
     url: string,
     debt: { from: string; to: string; amount: number },
     toName: string,
     kind: 'venmo' | 'paypal',
   ) {
-    if (externalPayment) return;
+    if (externalPayment || settleVenmo.isPending) return;
     window.open(url, '_blank', 'noopener,noreferrer');
     setExternalPayment({ debt, toName, kind, currency: g.currency });
   }
@@ -205,7 +187,7 @@ export default function GroupDetailPage({ params }: { params: Promise<{ groupId:
             type="button"
             size="lg"
             className="h-auto min-h-20 justify-start gap-3 px-4 py-3 text-left"
-            disabled={!paypalUrl}
+            disabled={!paypalUrl || !!externalPayment || settleVenmo.isPending}
             data-testid="settle-pay-paypal"
             onClick={() => {
               if (!paypalUrl) return;
@@ -225,7 +207,7 @@ export default function GroupDetailPage({ params }: { params: Promise<{ groupId:
             type="button"
             size="lg"
             className="h-auto min-h-20 justify-start gap-3 px-4 py-3 text-left"
-            disabled={!bankIban}
+            disabled={!bankIban || !!externalPayment || settleVenmo.isPending}
             data-testid="settle-pay-bank"
             onClick={() => {
               if (!bankIban) return;
@@ -248,11 +230,29 @@ export default function GroupDetailPage({ params }: { params: Promise<{ groupId:
             </span>
           </Button>
         </div>
+        {!paypalUrl && !bankIban && !venmoUrl && !receiver?.isPlaceholder && (
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            disabled={
+              requestPaymentDetails.isPending ||
+              (requestPaymentDetails.isSuccess && requestPaymentDetails.variables?.userId === to)
+            }
+            data-testid="request-payment-details"
+            onClick={() => requestPaymentDetails.mutate({ groupId, userId: to })}
+          >
+            {requestPaymentDetails.isSuccess && requestPaymentDetails.variables?.userId === to
+              ? t('payment.requested')
+              : t('payment.requestDetails')}
+          </Button>
+        )}
         {venmoUrl && (
           <Button
             type="button"
             variant="outline"
             size="sm"
+            disabled={!!externalPayment || settleVenmo.isPending}
             onClick={() => {
               setSettleState((st) => ({ ...st, open: false }));
               startExternalPayment(venmoUrl, debt, toName, 'venmo');
@@ -277,6 +277,26 @@ export default function GroupDetailPage({ params }: { params: Promise<{ groupId:
 
   return (
     <div className="space-y-6">
+      {externalPayment && (
+        <ExternalPaymentConfirmation
+          amount={externalPayment.debt.amount}
+          currency={externalPayment.currency}
+          name={externalPayment.toName}
+          pending={settleVenmo.isPending}
+          onDismiss={() => setExternalPayment(null)}
+          onPaid={() => {
+            if (settleVenmo.isPending) return;
+            settleVenmo.mutate({
+              groupId,
+              fromId: externalPayment.debt.from,
+              toId: externalPayment.debt.to,
+              amount: externalPayment.debt.amount,
+              currency: externalPayment.currency,
+              note: externalPayment.kind === 'venmo' ? t('detail.settledViaVenmo') : t('detail.settledViaPaypal'),
+            });
+          }}
+        />
+      )}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex min-w-0 items-center gap-4">
           <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-accent">
@@ -590,7 +610,9 @@ export default function GroupDetailPage({ params }: { params: Promise<{ groupId:
           amountCents={bankTransfer.amount}
           currency={g.currency}
           reference={`Splitbon: ${g.name}`}
+          pending={settleVenmo.isPending}
           onPaid={() => {
+            if (settleVenmo.isPending) return;
             settleVenmo.mutate({
               groupId,
               fromId: bankTransfer.fromId,
@@ -599,7 +621,6 @@ export default function GroupDetailPage({ params }: { params: Promise<{ groupId:
               currency: g.currency,
               note: t('detail.settledViaBank'),
             });
-            setBankTransfer(null);
           }}
         />
       )}

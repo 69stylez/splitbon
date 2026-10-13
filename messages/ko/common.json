@@ -87,6 +87,12 @@
     "pushUnsupported": "이 브라우저는 푸시 메시지를 표시할 수 없습니다. iPhone에서는 먼저 홈 화면에 Splitbon을 추가하세요. 벨은 어디에서나 작동합니다.",
     "pushIosInstall": "iPhone과 iPad에서는 홈 화면에 추가한 앱에서만 알림을 받을 수 있습니다. 공유를 누르고 “홈 화면에 추가”를 선택한 뒤 새 아이콘으로 Splitbon을 열어 거기서 켜세요.",
     "pushIosUpdate": "iPhone과 iPad의 알림에는 iOS 16.4 이상이 필요합니다. iOS를 업데이트하세요.",
+    "pushIosTitle": "iPhone 및 iPad의 푸시 알림",
+    "pushIosStep1": "Safari에서 Splitbon을 엽니다.",
+    "pushIosStep2": "화면 아래의 공유 버튼을 누릅니다.",
+    "pushIosStep3": "“홈 화면에 추가”를 누른 다음 “추가”를 선택합니다.",
+    "pushIosStep4": "새 아이콘에서 Splitbon을 열고 이 기기의 알림을 켭니다.",
+    "pushIosGuide": "Apple의 그림 가이드 열기",
     "empty": "아직 새로운 것은 없습니다.",
     "back": "대시보드로 돌아가기"
   }

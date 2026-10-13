@@ -62,6 +62,7 @@ export function BankTransferDialog({
   currency,
   reference,
   onPaid,
+  pending = false,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -71,6 +72,7 @@ export function BankTransferDialog({
   currency: string;
   reference: string;
   onPaid: () => void;
+  pending?: boolean;
 }) {
   const t = useTranslations('groups');
   const locale = useLocale();
@@ -78,7 +80,12 @@ export function BankTransferDialog({
   const amount = formatCents(amountCents, currency, locale);
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (!pending) onOpenChange(nextOpen);
+      }}
+    >
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-sm">
         <DialogHeader>
           <DialogTitle>{t('payment.bankTitle')}</DialogTitle>
@@ -99,8 +106,8 @@ export function BankTransferDialog({
             testId="bank-amount"
           />
           <CopyRow label={t('payment.reference')} value={reference} copyValue={reference} testId="bank-reference" />
-          <Button type="button" className="w-full" onClick={onPaid} data-testid="bank-paid">
-            {t('payment.markPaid')}
+          <Button type="button" className="w-full" disabled={pending} onClick={onPaid} data-testid="bank-paid">
+            {pending ? t('settle.submitting') : t('payment.markPaid')}
           </Button>
         </div>
       </DialogContent>

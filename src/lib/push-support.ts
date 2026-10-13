@@ -25,6 +25,9 @@ export type PushEnvironment = {
  */
 export function detectPushSupport(env: PushEnvironment): PushSupport {
   const ios = /iPad|iPhone|iPod/.test(env.userAgent) || (env.platform === 'MacIntel' && env.maxTouchPoints > 1);
+  // Safari can expose the Push API in a regular tab, but Apple only lets a home-screen web app
+  // subscribe. Treat a browser tab as unsupported even when the feature probes happen to pass.
+  if (ios && !env.standalone) return { supported: false, ios, standalone: false, hint: 'ios-install' };
   const supported = env.hasServiceWorker && env.hasPushManager && env.hasNotification;
   if (supported) return { supported, ios, standalone: env.standalone, hint: 'none' };
   if (ios) return { supported, ios, standalone: env.standalone, hint: env.standalone ? 'ios-update' : 'ios-install' };

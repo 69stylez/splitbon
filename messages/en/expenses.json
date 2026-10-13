@@ -250,6 +250,7 @@
     "claimStatus": "{people, plural, one {# person has} other {# people have}} picked {items} of {total} items.",
     "applyClaims": "Apply the group's picks",
     "claimsApplied": "The group's picks were applied",
+    "claimsAutoApplied": "The group's picks are applied automatically",
     "pickOwn": "Pick my own items"
   },
   "splits": {

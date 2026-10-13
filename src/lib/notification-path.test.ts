@@ -2,6 +2,7 @@ import { expect, test } from 'vitest';
 import { notificationPath } from './notification-path';
 
 test('each kind of notification opens its page', () => {
+  expect(notificationPath('PAYMENT_DETAILS_REQUEST', 'g', 'sender')).toBe('/settings');
   expect(notificationPath('EXPENSE_ADDED', 'g', 'e')).toBe('/groups/g/expenses/e');
   expect(notificationPath('SETTLEMENT', 'g', 's')).toBe('/groups/g');
   expect(notificationPath('CLAIM_REQUEST', 'g', 'r')).toBe('/groups/g/receipts/r/claim');

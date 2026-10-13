@@ -105,6 +105,11 @@ export function ItemAssignment({
 
   const [assignments, setAssignments] = useState<Assignments>({});
   const [counts, setCounts] = useState<Counts>({});
+  // Group picks update while the request is open. Once the creator changes a split manually,
+  // leave that deliberate correction alone instead of replacing it during the next poll.
+  const claimsManuallyAdjustedRef = useRef(false);
+  const autoClaimItemIdsRef = useRef<Set<string>>(new Set());
+  const autoAppliedClaimsRef = useRef<string | null>(null);
   const countOf = (itemId: string, userId: string) => counts[itemId]?.[userId] ?? 1;
   const countsFrom = (list: { id: string; assignments?: { userId: string; shareOfItem?: number }[] }[]) => {
     const out: Counts = {};
@@ -324,6 +329,33 @@ export function ItemAssignment({
     }
   }, [receiptData.data, initial, currentUserId, members]);
 
+  // A booking request should not require a second, easy-to-miss "Apply" action. Mirror the
+  // members' current picks into the editor until the creator starts adjusting the split by hand.
+  useEffect(() => {
+    if (expenseId || !claims.data || claimsManuallyAdjustedRef.current) return;
+    const signature = JSON.stringify(
+      claims.data.claims
+        .map((claim) => [claim.receiptItemId, claim.userId, claim.units ?? 1])
+        .sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b))),
+    );
+    if (autoAppliedClaimsRef.current === signature) return;
+    autoAppliedClaimsRef.current = signature;
+
+    const picked = claimsToAssignments(claims.data.claims, new Set(members.map((member) => member.id)));
+    const previousItemIds = autoClaimItemIdsRef.current;
+    autoClaimItemIdsRef.current = new Set(Object.keys(picked.assignments));
+    setAssignments((previous) => {
+      const next = { ...previous };
+      for (const itemId of previousItemIds) delete next[itemId];
+      return { ...next, ...picked.assignments };
+    });
+    setCounts((previous) => {
+      const next = { ...previous };
+      for (const itemId of previousItemIds) delete next[itemId];
+      return { ...next, ...picked.counts };
+    });
+  }, [claims.data, expenseId, members]);
+
   // On a wide screen the receipt opens next to the recognized values; a link to a line
   // (#item-…, e.g. from the history) scrolls to it once the lines are there.
   const openedRef = useRef(false);
@@ -364,6 +396,7 @@ export function ItemAssignment({
   // Tapping a person adds them; on a line with several units each further tap adds one unit
   // (2 of 3 coffees), and tapping at the line's quantity removes the person again.
   function toggleAssignment(itemId: string, userId: string) {
+    claimsManuallyAdjustedRef.current = true;
     const quantity = Math.max(1, items.find((it) => it.id === itemId)?.quantity ?? 1);
     const isAssigned = assignments[itemId]?.has(userId) ?? false;
     const current = countOf(itemId, userId);
@@ -390,6 +423,7 @@ export function ItemAssignment({
   }
 
   function assignAllToEveryone() {
+    claimsManuallyAdjustedRef.current = true;
     setCounts({});
     const next: Assignments = {};
     for (const item of items) {
@@ -1049,26 +1083,16 @@ export function ItemAssignment({
                       total: items.length,
                     })}
               </p>
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  type="button"
-                  size="sm"
-                  disabled={claims.data.claims.length === 0}
-                  onClick={() => {
-                    const picked = claimsToAssignments(claims.data!.claims, new Set(members.map((m) => m.id)));
-                    setAssignments((prev) => ({ ...prev, ...picked.assignments }));
-                    setCounts((prev) => {
-                      const next = { ...prev };
-                      for (const itemId of Object.keys(picked.assignments)) delete next[itemId];
-                      return { ...next, ...picked.counts };
-                    });
-                    toast.success(t('claimsApplied'));
-                  }}
-                  data-testid="apply-claims-btn"
-                >
-                  <Check className="mr-2 h-4 w-4" />
-                  {t('applyClaims')}
-                </Button>
+              <div className="flex flex-wrap items-center gap-2">
+                {claims.data.claims.length > 0 && (
+                  <span
+                    className="inline-flex items-center gap-1.5 text-xs text-muted-foreground"
+                    data-testid="claims-auto-applied"
+                  >
+                    <Check className="h-3.5 w-3.5 text-primary" />
+                    {t('claimsAutoApplied')}
+                  </span>
+                )}
                 <Button
                   type="button"
                   size="sm"

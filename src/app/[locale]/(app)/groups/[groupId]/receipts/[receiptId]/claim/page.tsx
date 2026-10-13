@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { UserAvatar } from '@/components/ui/user-avatar';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { ReceiptImageViewer } from '@/components/receipts/receipt-image-viewer';
 
 /**
  * Every group member picks their own lines of a scanned receipt. Each tap saves one person's own pick,
@@ -191,15 +192,11 @@ export default function ClaimReceiptPage({ params }: { params: Promise<{ groupId
                 {t('showReceipt')}
                 <ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180" />
               </summary>
-              <a href={`/api/uploads/${receipt.imagePath}`} target="_blank" rel="noopener noreferrer">
-                {/* eslint-disable-next-line @next/next/no-img-element -- user-uploaded receipt photo of unknown size */}
-                <img
-                  src={`/api/uploads/${receipt.imagePath}`}
-                  alt={t('receiptImageAlt')}
-                  loading="lazy"
-                  className="max-h-[70vh] w-full rounded-b-md object-contain"
-                />
-              </a>
+              <ReceiptImageViewer
+                src={`/api/uploads/${receipt.imagePath}`}
+                alt={t('receiptImageAlt')}
+                imageClassName="max-h-[70vh] w-full rounded-b-md object-contain"
+              />
             </details>
           )}
         </CardContent>

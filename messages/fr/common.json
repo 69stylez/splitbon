@@ -87,6 +87,12 @@
     "pushUnsupported": "Ce navigateur ne peut pas afficher les messages push. Sur iPhone, ajoutez d'abord Splitbon à l'écran d'accueil. La cloche fonctionne partout.",
     "pushIosInstall": "Sur iPhone et iPad, les notifications ne fonctionnent que pour l’app ajoutée à l’écran d’accueil. Touchez Partager, puis « Sur l’écran d’accueil », ouvrez Splitbon depuis la nouvelle icône et activez-les là.",
     "pushIosUpdate": "Les notifications sur iPhone et iPad nécessitent iOS 16.4 ou plus récent. Mettez iOS à jour.",
+    "pushIosTitle": "Notifications push sur iPhone et iPad",
+    "pushIosStep1": "Ouvrez Splitbon dans Safari.",
+    "pushIosStep2": "Touchez Partager en bas de l’écran.",
+    "pushIosStep3": "Touchez « Sur l’écran d’accueil », puis « Ajouter ».",
+    "pushIosStep4": "Ouvrez Splitbon depuis la nouvelle icône, puis activez les messages sur cet appareil.",
+    "pushIosGuide": "Ouvrir le guide illustré d’Apple",
     "empty": "Rien de nouveau pour l'instant.",
     "back": "Retour au tableau de bord"
   }

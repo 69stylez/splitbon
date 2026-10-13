@@ -143,7 +143,14 @@
     "notePlaceholder": "z.B. Venmo, bar",
     "unnamed": "Unbenannt",
     "suggestions": "Vorgeschlagene Zahlungen",
-    "manual": "Zahlung manuell erfassen"
+    "manual": "Zahlung manuell erfassen",
+    "cancelRecorded": "Buchung stornieren",
+    "cancelTitle": "Erfasste Zahlung stornieren?",
+    "cancelDescription": "Dies korrigiert nur die erfasste Zahlung und berechnet die Salden neu. Es wird kein Geld zurücküberwiesen. Die ursprüngliche Zahlung und die Stornierung bleiben in der Historie erhalten.",
+    "cancelReason": "Grund (optional)",
+    "cancelError": "Stornierung fehlgeschlagen. Bitte erneut versuchen.",
+    "cancelConfirm": "Buchung jetzt stornieren",
+    "canceled": "Storniert · nicht in den Salden berücksichtigt"
   },
   "invite": {
     "title": "In Gruppe einladen",
@@ -282,7 +289,8 @@
       "payment": "Zahlungen",
       "receipt": "Belegposten",
       "group": "Gruppe"
-    }
+    },
+    "settlementCanceled": "{name} hat die erfasste Zahlung von {from} an {to} über {amount} storniert."
   },
   "payment": {
     "bankTitle": "Überweisung",
@@ -293,7 +301,13 @@
     "reference": "Verwendungszweck",
     "copy": "Kopieren",
     "copyFailed": "Kopieren nicht möglich",
-    "markPaid": "Ich habe bezahlt"
+    "markPaid": "Ich habe bezahlt",
+    "externalTitle": "Zahlung von {amount} an {name}",
+    "externalHint": "Das Öffnen von PayPal oder Venmo bestätigt keine Zahlung. Markiere sie erst als bezahlt, wenn du sie tatsächlich abgeschlossen hast.",
+    "notPaid": "Noch nicht bezahlt",
+    "requestDetails": "Zahlungsdaten anfragen",
+    "requested": "Anfrage gespeichert",
+    "requestStored": "Anfrage gespeichert. Push wird an aktivierte Geräte gesendet."
   },
   "trash": {
     "title": "Papierkorb",

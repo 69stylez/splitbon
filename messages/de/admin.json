@@ -164,7 +164,8 @@
     "typeGroupUnarchived": "Gruppe dearchiviert",
     "typePlaceholderCreated": "Platzhalter hinzugefügt",
     "typeSettlementCreated": "Abrechnung",
-    "typeReceiptItemsChanged": "Beleg-Positionen geändert"
+    "typeReceiptItemsChanged": "Beleg-Positionen geändert",
+    "typeSettlementCanceled": "Zahlung storniert"
   },
   "tools": {
     "title": "Admin-Werkzeuge",

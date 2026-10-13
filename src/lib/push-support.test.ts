@@ -25,6 +25,11 @@ describe('detectPushSupport', () => {
     expect(result).toMatchObject({ supported: false, ios: true, hint: 'ios-install' });
   });
 
+  test('an iPhone Safari tab still needs the home screen when it exposes the Push API', () => {
+    const result = detectPushSupport({ ...base, userAgent: IPHONE_UA, platform: 'iPhone' });
+    expect(result).toMatchObject({ supported: false, ios: true, standalone: false, hint: 'ios-install' });
+  });
+
   test('an iPhone app from the home screen with push is supported', () => {
     const result = detectPushSupport({ ...base, userAgent: IPHONE_UA, platform: 'iPhone', standalone: true });
     expect(result).toMatchObject({ supported: true, ios: true, standalone: true, hint: 'none' });

@@ -250,6 +250,7 @@
     "claimStatus": "{people}명이 {total}개 중 {items}개 품목을 골랐습니다.",
     "applyClaims": "그룹의 선택 적용",
     "claimsApplied": "그룹의 선택을 적용했습니다",
+    "claimsAutoApplied": "그룹의 선택이 자동으로 적용됩니다",
     "pickOwn": "내 품목 고르기"
   },
   "splits": {

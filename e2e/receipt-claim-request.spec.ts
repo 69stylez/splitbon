@@ -12,7 +12,7 @@ async function mutationResult(res: { json: () => Promise<any> }) {
 }
 
 // Uses the mock scan provider, like the correction chat test; never against production.
-test('everyone picks their own lines, the organizer applies the picks', async ({ page }) => {
+test('everyone picks their own lines and the organizer gets them automatically', async ({ page }) => {
   test.skip(process.env.E2E_AI_CORRECTION !== '1', 'Requires isolated test server and mock provider; never production');
   test.setTimeout(90_000);
   const { owner, memberContexts, groupId, memberIds, dispose } = await createTestGroup(
@@ -93,11 +93,13 @@ test('everyone picks their own lines, the organizer applies the picks', async ({
       expect(onTacos.map((c: { units: number }) => c.units).sort()).toEqual([1, 2]);
     }
 
-    // On the receipt, the picks become the assignment
+    // On the receipt, the picks become assignments without a second Apply action.
     await page.goto(`/en/groups/${groupId}/scan?receiptId=${receiptId}`);
     await expect(page.getByTestId('claim-status')).toBeVisible({ timeout: 30_000 });
-    await page.getByTestId('apply-claims-btn').click();
-    await expect(page.getByText("The group's picks were applied")).toBeVisible();
+    await expect(page.getByTestId('claims-auto-applied')).toContainText("The group's picks are applied automatically");
+    await expect(
+      page.getByTestId(`item-card-${items[0].id}`).getByTestId(`member-toggle-${memberIds[users.alice.email]}`),
+    ).toContainText('✓');
   } finally {
     await dispose();
   }

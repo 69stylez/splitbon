@@ -87,6 +87,12 @@
     "pushUnsupported": "このブラウザではプッシュメッセージを表示できません。 iPhone では、まず Splitbon をホーム画面に追加します。鐘はどこでも鳴ります。",
     "pushIosInstall": "iPhoneとiPadでは、ホーム画面に追加したアプリでのみ通知が使えます。共有ボタン →「ホーム画面に追加」をタップし、新しいアイコンからSplitbonを開いて、そこでオンにしてください。",
     "pushIosUpdate": "iPhoneとiPadの通知にはiOS 16.4以降が必要です。iOSを更新してください。",
+    "pushIosTitle": "iPhoneとiPadのプッシュ通知",
+    "pushIosStep1": "SafariでSplitbonを開きます。",
+    "pushIosStep2": "画面下部の共有ボタンをタップします。",
+    "pushIosStep3": "「ホーム画面に追加」をタップし、「追加」を選びます。",
+    "pushIosStep4": "新しいアイコンからSplitbonを開き、このデバイスの通知をオンにします。",
+    "pushIosGuide": "Appleの画像付きガイドを開く",
     "empty": "まだ何も新しいことはありません。",
     "back": "ダッシュボードに戻る"
   }

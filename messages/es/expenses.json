@@ -250,6 +250,7 @@
     "claimStatus": "{people, plural, one {# persona ha} other {# personas han}} elegido {items} de {total} artículos.",
     "applyClaims": "Aplicar lo que eligió el grupo",
     "claimsApplied": "Se aplicó lo que eligió el grupo",
+    "claimsAutoApplied": "Las elecciones del grupo se aplican automáticamente",
     "pickOwn": "Elegir mis artículos"
   },
   "splits": {

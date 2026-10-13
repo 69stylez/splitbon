@@ -164,7 +164,8 @@
     "typeGroupUnarchived": "Group Unarchived",
     "typePlaceholderCreated": "Placeholder Added",
     "typeSettlementCreated": "Settlement",
-    "typeReceiptItemsChanged": "Receipt lines changed"
+    "typeReceiptItemsChanged": "Receipt lines changed",
+    "typeSettlementCanceled": "Payment canceled"
   },
   "tools": {
     "title": "Admin Tools",

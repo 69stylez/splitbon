@@ -14,6 +14,7 @@ import { UserAvatar } from '@/components/ui/user-avatar';
 import { ArrowLeft, Trash2, Pencil, Check, ChevronDown } from 'lucide-react';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { ReceiptHistory } from '@/components/receipts/receipt-history';
+import { ReceiptImageViewer } from '@/components/receipts/receipt-image-viewer';
 import { ExpenseMap } from '@/components/groups/expense-map';
 import { memberChipColors } from '@/lib/avatar';
 
@@ -204,15 +205,11 @@ export default function ExpenseDetailPage({ params }: { params: Promise<{ groupI
                       <ChevronDown className="h-4 w-4 text-muted-foreground" />
                     </summary>
                     <div className="px-3 pb-3">
-                      <a href={`/api/uploads/${e.receipt.imagePath}`} target="_blank" rel="noopener noreferrer">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={`/api/uploads/${e.receipt.imagePath}`}
-                          alt={t('detail.receiptImage')}
-                          loading="lazy"
-                          className="max-h-96 w-auto rounded-md border object-contain"
-                        />
-                      </a>
+                      <ReceiptImageViewer
+                        src={`/api/uploads/${e.receipt.imagePath}`}
+                        alt={t('detail.receiptImage')}
+                        imageClassName="max-h-96 w-auto rounded-md border object-contain"
+                      />
                     </div>
                   </details>
                 )}
