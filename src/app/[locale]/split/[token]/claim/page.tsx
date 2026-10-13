@@ -55,7 +55,6 @@ import {
   Users,
   Receipt,
   ArrowRight,
-  Image as ImageIcon,
   Pencil,
   X,
   Link2,
@@ -66,6 +65,7 @@ import { toast } from 'sonner';
 import { Link } from '@/i18n/navigation';
 import { buildVenmoPayUrl, isValidVenmoHandle } from '@/lib/venmo';
 import { getInitials, guestAvatarColor } from '@/lib/avatar';
+import { ReceiptImageViewer } from '@/components/receipts/receipt-image-viewer';
 
 // How one claim save attempt ended: the answer's conflicts when stored, the server's message
 // when refused
@@ -163,7 +163,7 @@ export default function ClaimPage({ params }: { params: Promise<{ token: string 
     setSavingEdits(new Map());
   }
   const [saving, setSaving] = useState(false);
-  const [showImage, setShowImage] = useState(false);
+
   const [editingPersonId, setEditingPersonId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
   const [editingGroupSize, setEditingGroupSize] = useState(1);
@@ -1105,34 +1105,11 @@ export default function ClaimPage({ params }: { params: Promise<{ token: string 
 
         {/* Receipt image viewer */}
         {data.receiptImagePath && (
-          <>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => setShowImage(!showImage)}
-              data-testid="toggle-receipt-image"
-            >
-              <ImageIcon className="mr-2 h-4 w-4" />
-              {showImage ? t('hideReceipt') : t('viewReceipt')}
-            </Button>
-            {showImage && (
-              <Card>
-                <CardContent className="p-2">
-                  {/* eslint-disable-next-line @next/next/no-img-element -- user-uploaded
-                      receipt photo with unknown natural dimensions; next/image would need
-                      either server-side dimension probing or a fill+aspect-ratio layout
-                      change, out of scope here */}
-                  <img
-                    src={`/api/uploads/${data.receiptImagePath}`}
-                    alt={t('receiptImage')}
-                    className="w-full rounded-md"
-                    data-testid="receipt-image"
-                  />
-                </CardContent>
-              </Card>
-            )}
-          </>
+          <ReceiptImageViewer
+            src={`/api/uploads/${data.receiptImagePath}`}
+            alt={t('receiptImage')}
+            triggerLabel={t('viewReceipt')}
+          />
         )}
 
         {/* People already in session */}
@@ -1299,34 +1276,11 @@ export default function ClaimPage({ params }: { params: Promise<{ token: string 
 
       {/* Receipt image viewer */}
       {data.receiptImagePath && (
-        <>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => setShowImage(!showImage)}
-            data-testid="toggle-receipt-image"
-          >
-            <ImageIcon className="mr-2 h-4 w-4" />
-            {showImage ? t('hideReceipt') : t('viewReceipt')}
-          </Button>
-          {showImage && (
-            <Card>
-              <CardContent className="p-2">
-                {/* eslint-disable-next-line @next/next/no-img-element -- user-uploaded
-                    receipt photo with unknown natural dimensions; next/image would need
-                    either server-side dimension probing or a fill+aspect-ratio layout
-                    change, out of scope here */}
-                <img
-                  src={`/api/uploads/${data.receiptImagePath}`}
-                  alt={t('receiptImage')}
-                  className="w-full rounded-md"
-                  data-testid="receipt-image"
-                />
-              </CardContent>
-            </Card>
-          )}
-        </>
+        <ReceiptImageViewer
+          src={`/api/uploads/${data.receiptImagePath}`}
+          alt={t('receiptImage')}
+          triggerLabel={t('viewReceipt')}
+        />
       )}
 
       {/* People in session */}

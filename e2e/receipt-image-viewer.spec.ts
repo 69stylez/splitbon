@@ -28,7 +28,10 @@ test('receipt image opens and closes inside the app on mobile', async ({ page })
 
     await page.getByTestId('receipt-image-open').click();
     await expect(page.getByTestId('receipt-image-viewer')).toBeVisible();
-    await page.getByTestId('receipt-image-close').click();
+    const closeButton = page.getByTestId('receipt-image-close-icon');
+    await expect(closeButton).toBeVisible();
+    await expect(closeButton).toBeInViewport();
+    await closeButton.click();
     await expect(page.getByTestId('receipt-image-viewer')).toHaveCount(0);
   } finally {
     await fixture.dispose();

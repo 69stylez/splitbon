@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { getInitials } from '@/lib/avatar';
+import { ReceiptImageViewer } from '@/components/receipts/receipt-image-viewer';
 
 type Step = 'upload' | 'processing' | 'people' | 'assign';
 
@@ -81,7 +82,7 @@ export default function GuestSplitPage() {
   const [paidByIndex, setPaidByIndex] = useState(0);
   const [tipOverride, setTipOverride] = useState('');
   const [imagePath, setImagePath] = useState<string | null>(null);
-  const [showImage, setShowImage] = useState(false);
+
   const [correctionHint, setCorrectionHint] = useState('');
   const [showRescan, setShowRescan] = useState(false);
 
@@ -753,28 +754,13 @@ export default function GuestSplitPage() {
             <h2 className="text-xl font-bold">{t('assign.title')}</h2>
           </div>
 
-          {/* Receipt image toggle */}
+          {/* Receipt image */}
           {imagePath && (
-            <Button type="button" variant="outline" size="sm" onClick={() => setShowImage(!showImage)}>
-              <ImageIcon className="mr-2 h-4 w-4" />
-              {showImage ? t('assign.hideReceipt') : t('assign.viewReceipt')}
-            </Button>
-          )}
-
-          {showImage && imagePath && (
-            <Card>
-              <CardContent className="py-3">
-                {/* eslint-disable-next-line @next/next/no-img-element -- user-uploaded
-                    receipt photo with unknown natural dimensions; next/image would need
-                    either server-side dimension probing or a fill+aspect-ratio layout
-                    change, out of scope here */}
-                <img
-                  src={`/api/uploads/${imagePath}`}
-                  alt={t('assign.receiptImageAlt')}
-                  className="mx-auto max-h-[400px] rounded-md object-contain"
-                />
-              </CardContent>
-            </Card>
+            <ReceiptImageViewer
+              src={`/api/uploads/${imagePath}`}
+              alt={t('assign.receiptImageAlt')}
+              triggerLabel={t('assign.viewReceipt')}
+            />
           )}
 
           {/* Receipt summary */}
