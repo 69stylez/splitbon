@@ -136,6 +136,23 @@ Routers live in `src/server/trpc/routers/`. Add your procedure there and wire it
 - **Document upgrade steps** — if a change needs anything from operators on upgrade (a manual command, a new required variable, a behavior they must know about), add it under **Upgrading** in the README, since build releases only list commit titles.
 - **Conventional commits** — use prefixes like `feat:`, `fix:`, `chore:`, `docs:`, `refactor:` in commit messages.
 
+## Contributor license terms
+
+Splitbon contains MIT-licensed ShareTab and historic material as well as
+Splitbon Original Work under BSL 1.1. Before submitting a pull request, make
+sure you have the right to contribute every part of it.
+
+By submitting a contribution, you represent that you have the authority to do
+so and grant `cyborcc` a perpetual, worldwide, non-exclusive, royalty-free,
+irrevocable, sublicensable license to use, reproduce, modify, distribute,
+publish, and relicense that contribution as part of Splitbon under the BSL 1.1
+terms in this repository and under the later Apache-2.0 Change License. You
+retain copyright in your contribution. Do not submit a contribution if you
+cannot grant these rights.
+
+This term applies only to new contributions submitted after this licensing
+policy was added. It does not alter the license of historic contributions.
+
 ## Project Structure
 
 ```

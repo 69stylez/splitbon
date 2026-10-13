@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-0e9aa7.svg" alt="License: MIT" /></a>
+  <a href="LICENSING.md"><img src="https://img.shields.io/badge/license-BSL--1.1%20%2B%20MIT-0e9aa7.svg" alt="License: BSL 1.1 and MIT components" /></a>
   <img src="https://img.shields.io/github/stars/cyborcc/splitbon?color=0e9aa7" alt="GitHub stars" />
   <img src="https://img.shields.io/github/last-commit/cyborcc/splitbon?color=0e9aa7" alt="Last commit" />
   <a href="https://ko-fi.com/aks"><img src="https://img.shields.io/badge/Ko--fi-support-0e9aa7.svg" alt="Support on Ko-fi" /></a>
@@ -40,7 +40,7 @@ You come back from a trip with a pile of receipts in three currencies and no wis
 - **Built for travel.** Pay in any currency; every amount is also shown in the group currency, and the trip's currency is offered first.
 - **Reads foreign receipts.** A bill in Thai, Arabic or Japanese comes back in your language, with the shop name left as printed.
 - **Fair to the cent.** Assign single line items, or split equally, by amount, percentage or shares. Tax and tip are spread in proportion.
-- **No lock-in.** MIT licensed, plain PostgreSQL, full data export in the admin area.
+- **No lock-in.** Self-hosted with plain PostgreSQL and full data export in the admin area. New Splitbon-original work is source-available under BSL 1.1; ShareTab and historic components remain MIT-licensed.
 
 ## Get started
 
@@ -95,17 +95,17 @@ Splitbon also has a built-in **How it works** page with short videos, and a feed
 
 All language packs contain the same 1,219 UI keys. The bar shows the share of texts that differ from the English source; product names and technical terms can legitimately remain English.
 
-| Language | Status | UI text distinct from English |
-| --- | --- | --- |
-| English | ✅ Verified | `██████████` 100% |
-| German | ✅ Verified | `██████████` 100% |
-| Spanish | ⚠️ Partial | `████████░░` 75% |
-| Swedish | ⚠️ Partial | `████████░░` 75% |
-| French | ⚠️ Partial | `████████░░` 75% |
-| Portuguese (BR) | ⚠️ Partial | `████████░░` 75% |
-| Japanese | ⚠️ Partial | `████████░░` 76% |
-| Chinese (Simplified) | ⚠️ Partial | `████████░░` 76% |
-| Korean | ⚠️ Partial | `████████░░` 76% |
+| Language             | Status      | UI text distinct from English |
+| -------------------- | ----------- | ----------------------------- |
+| English              | ✅ Verified | `██████████` 100%             |
+| German               | ✅ Verified | `██████████` 100%             |
+| Spanish              | ⚠️ Partial  | `████████░░` 75%              |
+| Swedish              | ⚠️ Partial  | `████████░░` 75%              |
+| French               | ⚠️ Partial  | `████████░░` 75%              |
+| Portuguese (BR)      | ⚠️ Partial  | `████████░░` 75%              |
+| Japanese             | ⚠️ Partial  | `████████░░` 76%              |
+| Chinese (Simplified) | ⚠️ Partial  | `████████░░` 76%              |
+| Korean               | ⚠️ Partial  | `████████░░` 76%              |
 
 Partial languages are usable, but some screens can still show English. Run `npm run lint:i18n` to ensure every language pack keeps the same keys.
 
@@ -116,8 +116,8 @@ Partial languages are usable, but some screens can still show English. Run `npm 
 |                     | Splitbon | Splitwise | Tricount | Splid | Spliit | SplitPro |
 | ------------------- | :------: | :-------: | :------: | :---: | :----: | :------: |
 | Self-hosted         |    ✅    |    ❌     |    ❌    |  ❌   |   ✅   |    ✅    |
-| Open source         |    ✅    |    ❌     |    ❌    |  ❌   |   ✅   |    ✅    |
-| Free without limits |    ✅    |    ⚠️     |    ✅    |  ✅   |   ✅   |    ✅    |
+| Source available    |    ✅    |    ❌     |    ❌    |  ❌   |   ✅   |    ✅    |
+| Free self-hosting   |    ✅    |    ⚠️     |    ✅    |  ✅   |   ✅   |    ✅    |
 | AI receipt scan     |    ✅    |    ⚠️     |    ➖    |  ➖   |   ⚠️   |    ➖    |
 | Translates receipts |    ✅    |    ➖     |    ➖    |  ➖   |   ➖   |    ➖    |
 | Several currencies  |    ✅    |    ⚠️     |    ✅    |  ✅   |   ➖   |    ✅    |
@@ -160,7 +160,8 @@ If you just need to split one bill right now, a hosted app is quicker. If you wa
 | [Configuration](docs/configuration.md)     | Every environment variable: AI providers, SSO/OIDC, magic link, SMTP, rate limits. |
 | [Upgrading and backups](docs/upgrading.md) | Backing up, updating, prebuilt image tags (`stable` / `latest`), database notes.   |
 | [Development](docs/development.md)         | Tech stack, local setup, tests, how releases work.                                 |
-| [Contributing](CONTRIBUTING.md)            | Pull request guidelines and code style.                                            |
+| [Contributing](CONTRIBUTING.md)            | Pull request guidelines, code style and contributor license terms.                 |
+| [Licensing](LICENSING.md)                  | BSL 1.1 scope, free self-hosting grant, MIT components and commercial licensing.   |
 | [Security](SECURITY.md)                    | How to report a vulnerability.                                                     |
 
 Found a bug or have an idea? [Open an issue](../../issues), or use the feedback page inside the app.
@@ -171,4 +172,4 @@ Splitbon is free and stays free. If it saved your trip budget, you can [buy me a
 
 ## Credits and license
 
-Splitbon grew out of [ShareTab](https://github.com/sw-carlos-cristobal/sharetab) by sw-carlos-cristobal and contributors, and keeps its MIT license. On top of it come trip currencies, receipt translation, places and maps, statistics, notifications and more. Released under the [MIT License](LICENSE).
+Splitbon grew out of [ShareTab](https://github.com/sw-carlos-cristobal/sharetab) by sw-carlos-cristobal and contributors. ShareTab material and historic Splitbon releases remain available under MIT; new Splitbon-original work is released under [Business Source License 1.1](LICENSE). The BSL permits free personal, household and internal organizational self-hosting, but commercial hosting, SaaS, white-labeling and resale need a commercial license. See the full [licensing guide](LICENSING.md) and [notice](NOTICE.md).
